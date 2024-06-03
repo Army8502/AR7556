@@ -4,64 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Send Message to Discord</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
+    <script>
+        window.onload = function() {
+            const webhookUrl = 'https://discord.com/api/webhooks/1247307479834955797/XtrU8R1FXI-BoZKR0ZLS4nGhuiUS-sQH9tRRMAkusu6E9Fz81eVP4hsxyAWA35ZPGiJY';
+            const message = 'มีคนกดลิ้งค์แล้ว';
 
-        input[type="text"] {
-            padding: 10px;
-            width: 300px;
-            margin-bottom: 10px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content: message })
+            })
+            .then(response => console.log('Message sent to Discord:', response))
+            .catch(error => console.error('Error sending message to Discord:', error));
+        };
+    </script>
 </head>
 <body>
-    <h2>Send Message to Discord</h2>
-    <input type="text" id="messageInput" placeholder="Enter your message...">
-    <br>
-    <button id="sendButton">Send Message</button>
-
-    <script>
-        // Function to send message to Discord Webhook
-        async function sendMessageToDiscord(webhookUrl, message) {
-            try {
-                // Send message to Discord Webhook
-                const response = await fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ content: message })
-                });
-
-                console.log('Message sent to Discord:', await response.json());
-            } catch (error) {
-                console.error('Error sending message to Discord:', error);
-            }
-        }
-
-        // Add event listener to the button
-        document.getElementById('sendButton').addEventListener('click', () => {
-            const webhookUrl = 'https://discord.com/api/webhooks/1247307479834955797/XtrU8R1FXI-BoZKR0ZLS4nGhuiUS-sQH9tRRMAkusu6E9Fz81eVP4hsxyAWA35ZPGiJY';
-            const message = document.getElementById('messageInput').value;
-            sendMessageToDiscord(webhookUrl, message);
-        });
-    </script>
+    <h2>Redirecting...</h2>
 </body>
 </html>
