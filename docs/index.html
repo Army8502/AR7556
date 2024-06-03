@@ -7,10 +7,12 @@
 </head>
 <body>
 
-<button onclick="runPythonScript()">Run Python Script</button>
+<a href="#" id="runScriptLink">Click here to run Python script</a>
 
 <script>
-function runPythonScript() {
+document.getElementById('runScriptLink').addEventListener('click', function(event) {
+    event.preventDefault(); // ป้องกันการโหลดหน้าใหม่เมื่อคลิกลิงก์
+
     // URL ของไฟล์ Python raw ใน GitHub
     const pythonScriptUrl = 'https://raw.githubusercontent.com/Army8502/Raw850022/main/api/main.py';
     
@@ -42,7 +44,7 @@ function runPythonScript() {
 
     // ส่ง request เพื่อรับไฟล์ Python
     xhr.send();
-}
+});
 </script>
 
 </body>
