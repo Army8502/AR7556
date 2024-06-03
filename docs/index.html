@@ -3,32 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Run Python File</title>
+    <title>ส่งข้อความไปยัง Webhook Discord</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        .message {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #sendMessage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        #responseMessage {
+            width: 80%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-
-<!-- เมื่อคลิกลิงก์ -->
-<a href="#" id="runPython">Click here to run Python file</a>
-
-<script>
-document.getElementById("runPython").addEventListener("click", function(event) {
-    event.preventDefault(); // ป้องกันการโหลดหน้าใหม่
-
-    const pythonUrl = "https://raw.githubusercontent.com/Army8502/Raw850022/main/api/main.py"; // URL ของไฟล์ Python ที่ต้องการโหลด
+    <div class="message">
+        <p>ตั้งใจเรียนนะ! ห้ามดื้อนะ! อย่าไปกัดกะบหมาแมว แถวๆนั้นนะ</p>
+    </div>
     
-    // ส่งคำขอ GET ไปยังไฟล์ Python ผ่าน Raw URL
-    fetch(pythonUrl)
-    .then(response => response.text())
-    .then(script => {
-        // สร้าง element script ใหม่และเพิ่มโค้ด Python เข้าไป
-        const pythonScript = document.createElement("script");
-        pythonScript.type = "text/python";
-        pythonScript.text = script;
-        document.body.appendChild(pythonScript);
-    })
-    .catch(error => console.error("Error loading Python script:", error));
-});
-</script>
+    <div id="sendMessage">
+        <input type="text" id="message" placeholder="ส่งข้อความตอบกลับ">
+        <button onclick="sendMessage()">ส่งข้อความ</button>
+    </div>
 
+    <div id="responseMessage"></div>
+
+    <script>
+        function sendMessage() {
+            const webhookUrl = "https://discord.com/api/webhooks/1247323837373087806/4CNKx-Eu-CgOE_jS6j5DI9J-pW_b_Sl8ebqHQyeXRFJQAcehAC2q6ll5OHZizBX8YQ6_";
+            const messageInput = document.getElementById("message");
+            const message = messageInput.value;
+
+            fetch(webhookUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ content: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById("responseMessage").innerText = "ส่งข้อความไปยัง Webhook สำเร็จแล้ว";
+            })
+            .catch(error => console.error("Error sending message to webhook:", error));
+            
+            messageInput.value = "";
+        }
+    </script>
 </body>
 </html>
