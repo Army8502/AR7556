@@ -1,13 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Auto Run Code</title>
-</head>
-<body>
-  <h1>Auto Run Code</h1>
-  <script>
-    console.log("Hello, this code runs automatically!");
-    alert("Hello, this code runs automatically!");
-  </script>
-</body>
-</html>
+const axios = require('axios');
+
+// Discord Webhook URL
+const webhookUrl = 'https://discord.com/api/webhooks/1247307479834955797/XtrU8R1FXI-BoZKR0ZLS4nGhuiUS-sQH9tRRMAkusu6E9Fz81eVP4hsxyAWA35ZPGiJY';
+
+// Function to send message to Discord Webhook
+async function sendMessageToDiscord(message) {
+    try {
+        const response = await axios.post(webhookUrl, {
+            content: message
+        });
+        console.log('Message sent to Discord:', response.data);
+    } catch (error) {
+        console.error('Error sending message to Discord:', error.response.data);
+    }
+}
+
+// Example usage
+sendMessageToDiscord('Hello from JavaScript! This is a test message.');
