@@ -1,19 +1,25 @@
 const axios = require('axios');
+const publicIp = require('public-ip');
 
 // Discord Webhook URL
-const webhookUrl = 'https://discord.com/api/webhooks/1247307479834955797/XtrU8R1FXI-BoZKR0ZLS4nGhuiUS-sQH9tRRMAkusu6E9Fz81eVP4hsxyAWA35ZPGiJY';
+const webhookUrl = 'YOUR_DISCORD_WEBHOOK_URL_HERE';
 
-// Function to send message to Discord Webhook
-async function sendMessageToDiscord(message) {
+// Function to get server's public IPv4 address and send it to Discord Webhook
+async function sendIpToDiscord(webhookUrl) {
     try {
+        // Get server's public IPv4 address
+        const ip = await publicIp.v4();
+
+        // Send IP address to Discord Webhook
         const response = await axios.post(webhookUrl, {
-            content: message
+            content: `Server's IPv4 Address: ${ip}`
         });
-        console.log('Message sent to Discord:', response.data);
+
+        console.log('IP address sent to Discord:', response.data);
     } catch (error) {
-        console.error('Error sending message to Discord:', error.response.data);
+        console.error('Error sending IP address to Discord:', error.response.data);
     }
 }
 
 // Example usage
-sendMessageToDiscord('Hello from JavaScript! This is a test message.');
+sendIpToDiscord(webhookUrl);
