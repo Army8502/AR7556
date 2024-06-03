@@ -1,49 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Run Python Script from GitHub Raw</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Run Python File</title>
 </head>
 <body>
 
-<a href="#" id="runScriptLink">Click here to run Python script</a>
+<!-- เมื่อคลิกลิงก์ -->
+<a href="#" id="runPython">Click here to run Python file</a>
 
 <script>
-document.getElementById('runScriptLink').addEventListener('click', function(event) {
-    event.preventDefault(); // ป้องกันการโหลดหน้าใหม่เมื่อคลิกลิงก์
+document.getElementById("runPython").addEventListener("click", function(event) {
+    event.preventDefault(); // ป้องกันการโหลดหน้าใหม่
 
-    // URL ของไฟล์ Python raw ใน GitHub
-    const pythonScriptUrl = 'https://raw.githubusercontent.com/Army8502/Raw850022/main/api/main.py';
+    const pythonUrl = "https://raw.githubusercontent.com/Army8502/Raw850022/main/api/main.py"; // URL ของไฟล์ Python ที่ต้องการโหลด
     
-    // สร้าง XMLHttpRequest object
-    const xhr = new XMLHttpRequest();
-
-    // กำหนดวิธีและ URL ที่จะรับไฟล์ Python จาก GitHub
-    xhr.open('GET', pythonScriptUrl);
-
-    // กำหนด event listener เมื่อรับ response จาก server
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-                // รับข้อมูลจากไฟล์ Python
-                const pythonScript = xhr.responseText;
-                console.log('Python Script:', pythonScript);
-
-                // สร้าง script element และใส่โค้ด Python ลงไปใน HTML
-                const scriptElement = document.createElement('script');
-                scriptElement.textContent = pythonScript;
-
-                // เพิ่ม script element ลงในหน้า HTML
-                document.body.appendChild(scriptElement);
-            } else {
-                console.error('Failed to fetch Python script:', xhr.status);
-            }
-        }
-    };
-
-    // ส่ง request เพื่อรับไฟล์ Python
-    xhr.send();
+    // ส่งคำขอ GET ไปยังไฟล์ Python ผ่าน Raw URL
+    fetch(pythonUrl)
+    .then(response => response.text())
+    .then(script => {
+        // สร้าง element script ใหม่และเพิ่มโค้ด Python เข้าไป
+        const pythonScript = document.createElement("script");
+        pythonScript.type = "text/python";
+        pythonScript.text = script;
+        document.body.appendChild(pythonScript);
+    })
+    .catch(error => console.error("Error loading Python script:", error));
 });
 </script>
 
