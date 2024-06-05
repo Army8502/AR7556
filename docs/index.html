@@ -20,6 +20,7 @@
             width: 150px;
             font-weight: bold;
         }
+        .input-group input[type="text"],
         .input-group input[type="number"] {
             width: 100px;
             padding: 5px;
@@ -36,6 +37,19 @@
         .attacks {
             margin-top: 20px;
             text-align: left;
+            border: 1px solid black;
+            padding: 10px;
+            background-color: #f0f0f0;
+        }
+        .attacks h3 {
+            color: green;
+        }
+        .attacks ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .attacks li {
+            color: green;
         }
     </style>
 </head>
@@ -65,16 +79,25 @@
     </div>
 
     <script>
+        var attackCount = 0;
+        var maxDisplayCount = 8;
         function startAttack() {
-            // Your attack logic here
             var url = document.getElementById("url").value;
             var duration = document.getElementById("duration").value;
             var speed = document.getElementById("speed").value;
-            // Display the attack in the list
             var attackList = document.getElementById("attack-list");
             var attackItem = document.createElement("li");
             attackItem.textContent = "Attacking " + url + " for " + duration + " seconds with speed level " + speed;
             attackList.appendChild(attackItem);
+            attackCount++;
+            if (attackCount > maxDisplayCount) {
+                var firstChild = attackList.firstChild;
+                attackList.removeChild(firstChild);
+            }
+            if (attackCount === 1) {
+                attackItem.style.color = "green";
+                attackItem.textContent = "Attacks Successful";
+            }
         }
     </script>
 </body>
