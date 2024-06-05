@@ -30,6 +30,8 @@ body {
 }
 </style>
 <script>
+var attackCount = 0;
+
 function addProxyInput() {
     var container = document.getElementById("proxyContainer");
     if (container.children.length < 5) {
@@ -54,10 +56,15 @@ function removeProxyInput() {
 function startAttack() {
     // โค้ดส่งคำสั่งโจมตีไปยังเซิร์ฟเวอร์ ในที่นี้เป็นตัวอย่างเท่านั้น
     // คุณต้องแทนที่ด้วยโค้ดที่ใช้ในการโจมตีจริง
+    attackCount = 0;
     updateOutput("Attack started...");
-    setTimeout(function() {
-        updateOutput("Attack finished.");
-    }, 5000); // อัพเดตผลลัพธ์หลังจาก 5 วินาที (เปลี่ยนเป็นเวลาที่เหมาะสมตามการโจมตี)
+    setTimeout(performAttack, 1000); // เริ่มการโจมตีหลังจาก 1 วินาที
+}
+
+function performAttack() {
+    attackCount++;
+    updateOutput("Attack #" + attackCount);
+    setTimeout(performAttack, 1000); // โจมตีอีกครั้งหลังจาก 1 วินาที
 }
 
 function updateOutput(message) {
