@@ -23,7 +23,7 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             text-align: center;
         }
-        input {
+        input, div {
             width: calc(100% - 20px);
             margin-bottom: 10px;
             padding: 10px;
@@ -43,6 +43,11 @@
         button:hover {
             background-color: #0056b3;
         }
+        #attackResults {
+            text-align: left;
+            max-height: 100px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -51,24 +56,39 @@
         <form id="ddosForm">
             <input type="text" id="url" placeholder="URL of the website">
             <input type="number" id="duration" placeholder="Duration of attack in seconds">
-            <input type="text" id="proxy" placeholder="Proxy IP and Port (e.g., 14.161.26.100:8080)">
+            <input type="text" id="proxies" placeholder="Proxy IP and Port (e.g., 14.161.26.100:8080)">
+            <input type="number" id="numAttacks" placeholder="Number of attacks">
             <button type="submit">Launch Attack</button>
         </form>
+        <div id="attackResults"></div>
     </div>
 
     <script>
+        function getRandomProxy(proxies) {
+            return proxies[Math.floor(Math.random() * proxies.length)];
+        }
+
         document.getElementById('ddosForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
             var url = document.getElementById('url').value;
             var duration = document.getElementById('duration').value;
-            var proxy = document.getElementById('proxy').value;
+            var proxies = document.getElementById('proxies').value.split('\n').map(proxy => proxy.trim());
+            var numAttacks = parseInt(document.getElementById('numAttacks').value);
 
-            if (url && duration && proxy) {
-                alert('Launching DDoS attack on ' + url + ' for ' + duration + ' seconds using proxy ' + proxy + '...');
-                // ตัวอย่างโค้ดสำหรับโจมตีจะใส่ที่นี่
+            var attackResults = document.getElementById('attackResults');
+            attackResults.innerHTML = ''; // Clear previous results
+
+            if (url && duration && proxies.length > 0 && numAttacks && numAttacks > 0 && numAttacks <= 5) {
+                for (var i = 1; i <= numAttacks; i++) {
+                    var proxy = getRandomProxy(proxies);
+                    var attackMessage = document.createElement('p');
+                    attackMessage.textContent = 'Launching DDoS attack #' + i + ' on ' + url + ' for ' + duration + ' seconds using proxy ' + proxy + '...';
+                    attackResults.appendChild(attackMessage);
+                    // ตัวอย่างโค้ดสำหรับโจมตีจะใส่ที่นี่
+                }
             } else {
-                alert('Please enter URL, duration of attack, and proxy IP and Port.');
+                alert('Please enter valid values for all fields. Number of attacks should be between 1 and 5.');
             }
         });
     </script>
