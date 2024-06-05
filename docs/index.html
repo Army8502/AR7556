@@ -14,6 +14,7 @@
         }
         .input-group {
             margin-bottom: 20px;
+            text-align: center;
         }
         .input-group label {
             display: inline-block;
@@ -36,20 +37,34 @@
         }
         .attacks {
             margin-top: 20px;
-            text-align: left;
+            text-align: center;
             border: 1px solid black;
             padding: 10px;
             background-color: #f0f0f0;
+            display: inline-block;
+            max-width: 300px;
         }
         .attacks h3 {
             color: green;
+            margin: 5px 0;
         }
         .attacks ul {
             list-style-type: none;
             padding: 0;
+            text-align: left;
+            margin: 0;
         }
         .attacks li {
             color: green;
+            margin: 5px 0;
+        }
+        .output {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .output p {
+            color: green;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -76,6 +91,9 @@
             <ul id="attack-list">
             </ul>
         </div>
+        <div class="output">
+            <p id="output-text"></p>
+        </div>
     </div>
 
     <script>
@@ -86,6 +104,7 @@
             var duration = document.getElementById("duration").value;
             var speed = document.getElementById("speed").value;
             var attackList = document.getElementById("attack-list");
+            var outputText = document.getElementById("output-text");
             var attackItem = document.createElement("li");
             attackItem.textContent = "Attacking " + url + " for " + duration + " seconds with speed level " + speed;
             attackList.appendChild(attackItem);
@@ -97,6 +116,9 @@
             if (attackCount === 1) {
                 attackItem.style.color = "green";
                 attackItem.textContent = "Attacks Successful";
+                outputText.textContent = "Attacks Successful";
+            } else {
+                outputText.textContent = attackCount - 1 + " attacks sent";
             }
         }
     </script>
