@@ -3,67 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐶ส่งข้อความไปยัง Webhook Discord</title>
+    <title>DDoS Test</title>
     <style>
         body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
-            flex-direction: column;
+            background-color: #f0f0f0;
         }
-        .message {
+        .container {
+            width: 400px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
             text-align: center;
-            margin-bottom: 20px;
         }
-        #sendMessage {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-        }
-        #responseMessage {
-            width: 80%;
+        input {
+            width: calc(100% - 20px);
+            margin-bottom: 10px;
             padding: 10px;
-            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <div class="message">
-        <p>🔧ตั้งใจเรียนนะ! ห้ามดื้อนะ! อย่าไปกัดกับหมาแมว แถวๆนั้นนะ รู้นะรอที่จะเห็นผมตอบกลับข้อความอยู่ตลอด คิดถึงผมหรอ บอกมาๆๆๆๆๆนะ!!! สร้างเว็บให้เลยนะเนี่ย</p>
+    <div class="container">
+        <h2>DDoS Testing</h2>
+        <form id="ddosForm">
+            <input type="text" id="url" placeholder="URL of the website">
+            <input type="number" id="duration" placeholder="Duration of attack in seconds">
+            <button type="submit">Launch Attack</button>
+        </form>
     </div>
-    
-    <div id="sendMessage">
-        <input type="text" id="message" placeholder="ส่งข้อความตอบกลับ">
-        <button onclick="sendMessage()">ส่งข้อความ</button>
-    </div>
-
-    <div id="responseMessage"></div>
 
     <script>
-        function sendMessage() {
-            const webhookUrl = "https://discord.com/api/webhooks/1247323837373087806/4CNKx-Eu-CgOE_jS6j5DI9J-pW_b_Sl8ebqHQyeXRFJQAcehAC2q6ll5OHZizBX8YQ6_";
-            const messageInput = document.getElementById("message");
-            const message = messageInput.value;
+        document.getElementById('ddosForm').addEventListener('submit', function(event) {
+            event.preventDefault();
 
-            fetch(webhookUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ content: message })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                document.getElementById("responseMessage").innerText = "ส่งข้อความไปยัง Webhook สำเร็จแล้ว";
-            })
-            .catch(error => console.error("Error sending message to webhook:", error));
-            
-            messageInput.value = "";
-        }
+            var url = document.getElementById('url').value;
+            var duration = document.getElementById('duration').value;
+
+            if (url && duration) {
+                alert('Launching DDoS attack on ' + url + ' for ' + duration + ' seconds...');
+                // ตัวอย่างโค้ดสำหรับโจมตีจะใส่ที่นี่
+            } else {
+                alert('Please enter URL and duration of attack.');
+            }
+        });
     </script>
 </body>
 </html>
