@@ -57,7 +57,6 @@
             <input type="text" id="url" placeholder="URL of the website">
             <input type="number" id="duration" placeholder="Duration of attack in seconds">
             <input type="text" id="proxies" placeholder="Proxy IP and Port (e.g., 14.161.26.100:8080)">
-            <input type="number" id="numAttacks" placeholder="Number of attacks">
             <button type="submit">Launch Attack</button>
         </form>
         <div id="attackResults"></div>
@@ -74,12 +73,12 @@
             var url = document.getElementById('url').value;
             var duration = document.getElementById('duration').value;
             var proxies = document.getElementById('proxies').value.split('\n').map(proxy => proxy.trim());
-            var numAttacks = parseInt(document.getElementById('numAttacks').value);
 
             var attackResults = document.getElementById('attackResults');
             attackResults.innerHTML = ''; // Clear previous results
 
-            if (url && duration && proxies.length > 0 && numAttacks && numAttacks > 0 && numAttacks <= 5) {
+            if (url && duration && proxies.length > 0) {
+                var numAttacks = 5; // Maximum number of attacks to display
                 for (var i = 1; i <= numAttacks; i++) {
                     var proxy = getRandomProxy(proxies);
                     var attackMessage = document.createElement('p');
@@ -88,7 +87,7 @@
                     // ตัวอย่างโค้ดสำหรับโจมตีจะใส่ที่นี่
                 }
             } else {
-                alert('Please enter valid values for all fields. Number of attacks should be between 1 and 5.');
+                alert('Please enter valid values for all fields.');
             }
         });
     </script>
