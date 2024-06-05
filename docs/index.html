@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DDoS Test</title>
+    <title>DDoS Testing</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -51,6 +51,7 @@
         <form id="ddosForm">
             <input type="text" id="url" placeholder="URL of the website">
             <input type="number" id="duration" placeholder="Duration of attack in seconds">
+            <input type="text" id="proxy" placeholder="Proxy IP and Port (e.g., 14.161.26.100:8080)">
             <button type="submit">Launch Attack</button>
         </form>
     </div>
@@ -61,12 +62,13 @@
 
             var url = document.getElementById('url').value;
             var duration = document.getElementById('duration').value;
+            var proxy = document.getElementById('proxy').value;
 
-            if (url && duration) {
-                alert('Launching DDoS attack on ' + url + ' for ' + duration + ' seconds...');
+            if (url && duration && proxy) {
+                alert('Launching DDoS attack on ' + url + ' for ' + duration + ' seconds using proxy ' + proxy + '...');
                 // ตัวอย่างโค้ดสำหรับโจมตีจะใส่ที่นี่
             } else {
-                alert('Please enter URL and duration of attack.');
+                alert('Please enter URL, duration of attack, and proxy IP and Port.');
             }
         });
     </script>
