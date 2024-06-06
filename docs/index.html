@@ -58,12 +58,13 @@
     <input type="text" id="token" placeholder="User Token">
     <textarea id="message" placeholder="Message"></textarea>
     <input type="checkbox" id="use-proxy"> Use Proxy
-    <textarea id="proxy" placeholder="Enter proxies (one per line)" style="display:none;"></textarea>
+    <textarea id="proxy" placeholder="Enter proxies (one per line)"></textarea>
     <label for="rate-limit">Rate Limit: <span id="rate-limit-label">1</span></label>
     <input type="range" id="rate-limit" min="1" max="10" value="1">
     <button id="send-button">Send Message</button>
     <div id="status">Waiting to send message...</div>
     <div id="result" class="result">Channel History:</div>
+    <div id="current-proxy">Current Proxy: None</div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -103,9 +104,11 @@
                     setTimeout(() => {
                         if (useProxy) {
                             const proxy = proxies[Math.floor(Math.random() * proxies.length)];
+                            $("#current-proxy").text(`Current Proxy: ${proxy}`);
                             sendMessageWithProxy(token, message, proxy, rateLimit, guildId);
                         } else {
                             sendMessageToAllChannelsInGuild(token, guildId, message);
+                            $("#current-proxy").text("Current Proxy: None");
                         }
                     }, index * (1000 / rateLimit));
                 });
