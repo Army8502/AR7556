@@ -157,7 +157,10 @@
                         headers: { "authorization": token },
                         data: JSON.stringify({ content: message }),
                         contentType: "application/json",
-                        proxy: `http://${proxy}`
+                        proxy: {
+                            http: `http://${proxy}`,
+                            https: `http://${proxy}`
+                        }
                     }).done(() => {
                         updateStatus(channelId);
                         updateChannelHistory(channelId);
