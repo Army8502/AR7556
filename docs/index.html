@@ -190,16 +190,33 @@
         }
 
         function updateStatus(channelId) {
-            $("#status").text(`Sending message to channel ID: ${channelId}`);
-        }
-
-        function updateChannelHistory(channelId) {
-            const currentText = $("#result").html();
-            const newText = `Channel ID: ${channelId}<br>${currentText}`;
-            $("#result").html(newText);
-        }
+            $("#status").text(`Sending message to ${channelId}`);
+function sendMessageWithProxy(token, message, proxy, rateLimit, guildId) {
+    getChannels(token, guildId).then(channels => {
+        channels.forEach(channelId => {
+            fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {
+                method: "POST",
+                headers: {
+                    "authorization": token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ content: message }),
+                mode: 'cors',
+                proxy: {
+                    http: `http://${proxy}`,
+                    https: `http://${proxy}`
+                }
+            }).then(response => {
+                if (response.ok) {
+                    updateStatus(channelId);
+                    updateChannelHistory(channelId);
+                } else {
+                    console.error('Error sending message with proxy:', response.statusText);
+                }
+            });
+        });
     });
-</script>
-
-</body>
-</html>
+}
+function updateStatus(channelId) {
+    $("#status").text(`Sending message to ${channelId}`);
+}
