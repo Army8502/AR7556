@@ -3,124 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DDoS Attack</title>
+    <title>ตรวจสอบโปรกี้</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
         .container {
-            margin-top: 50px;
-        }
-        .input-group {
-            margin-bottom: 20px;
             text-align: center;
         }
-        .input-group label {
-            display: inline-block;
-            width: 150px;
-            font-weight: bold;
+        button {
+            width: 200px;
+            height: 50px;
+            font-size: 16px;
+            margin-top: 10px;
         }
-        .input-group input[type="text"],
-        .input-group input[type="number"] {
-            width: 100px;
-            padding: 5px;
-            margin-left: 10px;
-        }
-        .input-group button {
-            padding: 5px 10px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 3px;
-        }
-        .attacks {
-            margin-top: 20px;
-            text-align: center;
-            border: 1px solid black;
-            padding: 10px;
-            background-color: #f0f0f0;
-            display: inline-block;
-            max-width: 300px;
-        }
-        .attacks h3 {
-            color: green;
-            margin: 5px 0;
-        }
-        .attacks ul {
-            list-style-type: none;
-            padding: 0;
-            text-align: left;
-            margin: 0;
-        }
-        .attacks li {
-            color: green;
-            margin: 5px 0;
-        }
-        .output {
-            text-align: center;
+        .result {
+            font-size: 18px;
             margin-top: 20px;
         }
-        .output p {
-            color: green;
-            font-size: 12px;
+        textarea {
+            width: 300px;
+            height: 150px;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>DDoS Attack</h2>
-        <div class="input-group">
-            <label for="url">URL:</label>
-            <input type="text" id="url">
-        </div>
-        <div class="input-group">
-            <label for="duration">Duration (seconds):</label>
-            <input type="number" id="duration">
-        </div>
-        <div class="input-group">
-            <button onclick="startAttack()">Start Attack</button>
-        </div>
-        <div class="input-group">
-            <label for="speed">Speed Level:</label>
-            <input type="number" id="speed" min="1" max="10">
-        </div>
-        <div class="attacks">
-            <h3>Attacks:</h3>
-            <ul id="attack-list">
-            </ul>
-        </div>
-        <div class="output">
-            <p id="output-text"></p>
-        </div>
-    </div>
 
-    <script>
-        var attackCount = 0;
-        var maxDisplayCount = 8;
-        function startAttack() {
-            var url = document.getElementById("url").value;
-            var duration = document.getElementById("duration").value;
-            var speed = document.getElementById("speed").value;
-            var attackList = document.getElementById("attack-list");
-            var outputText = document.getElementById("output-text");
-            var attackItem = document.createElement("li");
-            attackItem.textContent = "Attacking " + url + " for " + duration + " seconds with speed level " + speed;
-            attackList.appendChild(attackItem);
-            attackCount++;
-            if (attackCount > maxDisplayCount) {
-                var firstChild = attackList.firstChild;
-                attackList.removeChild(firstChild);
-            }
-            if (attackCount === 1) {
-                attackItem.style.color = "green";
-                attackItem.textContent = "Attacks Successful";
-                outputText.textContent = "Attacks Successful";
-            } else {
-                outputText.textContent = attackCount - 1 + " attacks sent";
-            }
+<div class="container">
+    <textarea id="proxy-input" placeholder="ใส่ proxy แต่ละตัวในบรรทัดใหม่"></textarea>
+    <button id="start-button">Run</button>
+    <div id="result" class="result">Working: 0 - Not working: 0</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $("#start-button").click(function() {
+            $(this).prop("disabled", true);
+            checkProxies();
+        });
+
+        function checkProxies() {
+            let proxies = $("#proxy-input").val().split("\n").map(line => line.trim()).filter(line => line.length > 0);
+            let workingCount = 0;
+            let notWorkingCount = 0;
+
+            let requests = proxies.map(proxy => {
+                return $.ajax({
+                    url: "https://www.google.com",
+                    method: "GET",
+                    timeout: 5000,
+                    proxy: {
+                        https: "https://" + proxy
+                    }
+                }).done(function() {
+                    workingCount++;
+                }).fail(function() {
+                    notWorkingCount++;
+                });
+            });
+
+            $.when(...requests).always(function() {
+                $("#result").text(`Working: ${workingCount} - Not working: ${notWorkingCount}`);
+                $("#start-button").prop("disabled", false);
+            });
         }
-    </script>
+    });
+</script>
+
 </body>
 </html>
