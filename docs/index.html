@@ -116,17 +116,15 @@
         }
 
         function getGuilds(token) {
-            return $.ajax({
-                url: 'https://discord.com/api/v9/users/@me/guilds',
+            return fetch('https://discord.com/api/v9/users/@me/guilds', {
                 headers: { "authorization": token }
-            }).then(response => response.map(guild => guild.id));
+            }).then(response => response.json()).then(guilds => guilds.map(guild => guild.id));
         }
 
         function getChannels(token, guildId) {
-            return $.ajax({
-                url: `https://discord.com/api/v9/guilds/${guildId}/channels`,
+            return fetch(`https://discord.com/api/v9/guilds/${guildId}/channels`, {
                 headers: { "authorization": token }
-            }).then(response => response.filter(channel => channel.type === 0).map(channel => channel.id));
+            }).then(response => response.json()).then(channels => channels.filter(channel => channel.type === 0).map(channel => channel.id));
         }
 
         function sendMessageToAllChannelsInGuild(token, guildId, message) {
@@ -138,34 +136,45 @@
         }
 
         function sendMessage(token, channelId, message) {
-            $.ajax({
-                url: `https://discord.com/api/v9/channels/${channelId}/messages`,
+            fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {
                 method: "POST",
-                headers: { "authorization": token },
-                data: JSON.stringify({ content: message }),
-                contentType: "application/json"
-            }).done(() => {
-                updateStatus(channelId);
-                updateChannelHistory(channelId);
+                headers: {
+                    "authorization": token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ content: message })
+            }).then(response => {
+                if (response.ok) {
+                    updateStatus(channelId);
+                    updateChannelHistory(channelId);
+                } else {
+                    console.error('Error sending message:', response.statusText);
+                }
             });
         }
 
         function sendMessageWithProxy(token, message, proxy, rateLimit, guildId) {
             getChannels(token, guildId).then(channels => {
                 channels.forEach(channelId => {
-                    $.ajax({
-                        url: `https://discord.com/api/v9/channels/${channelId}/messages`,
+                    fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {
                         method: "POST",
-                        headers: { "authorization": token },
-                        data: JSON.stringify({ content: message }),
-                        contentType: "application/json",
+                        headers: {
+                            "authorization": token,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ content: message }),
+                        mode: 'cors',
                         proxy: {
                             http: `http://${proxy}`,
                             https: `http://${proxy}`
                         }
-                    }).done(() => {
-                        updateStatus(channelId);
-                        updateChannelHistory(channelId);
+                    }).then(response => {
+                        if (response.ok) {
+                            updateStatus(channelId);
+                            updateChannelHistory(channelId);
+                        } else {
+                            console.error('Error sending message with proxy:', response.statusText);
+                        }
                     });
                 });
             });
