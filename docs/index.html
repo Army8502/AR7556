@@ -64,6 +64,7 @@
     <button id="send-button">Send Message</button>
     <div id="status">Waiting to send message...</div>
     <div id="result" class="result">Channel History:</div>
+    <div id="proxy-status" style="margin-top: 10px;"></div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -140,14 +141,42 @@
                 method: "POST",
                 headers: { "authorization": token },
                 data: JSON.stringify({ content: message }),
-                contentType: "application/json",
-                beforeSend: function(xhr) {
-                    if (useProxy) {
-                        xhr.setRequestHeader('X-Proxied-By', 'your-proxy-server');
-                    }
-                }
+                contentType: "application/json"
             }).done(() => {
                 updateStatus(channelId);
                 updateChannelHistory(channelId);
             });
         }
+
+        function sendMessageWithProxy(token, message, proxy, rateLimit, guildId) {
+            getChannels(token, guildId).then(channels => {
+                channels.forEach(channelId => {
+                    $.ajax({
+                        url: `https://discord.com/api/v9/channels/${channelId}/messages`,
+                        method: "POST",
+                        headers: { "authorization": token },
+                        data: JSON.stringify({ content: message }),
+                        contentType: "application/json",
+                        proxy: `http://${proxy}`
+                    }).done(() => {
+                        updateStatus(channelId);
+                        updateChannelHistory(channelId);
+                    });
+                });
+            });
+        }
+
+        function updateStatus(channelId) {
+            $("#status").text(`Sending message to channel ID: ${channelId}`);
+        }
+
+        function updateChannelHistory(channelId) {
+            const currentText = $("#result").html();
+            const newText = `Channel ID: ${channelId}<br>${currentText}`;
+            $("#result").html(newText);
+        }
+    });
+</script>
+
+</body>
+</html>
