@@ -1,76 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mass DM Sender</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
-        }
-        .container {
-            text-align: center;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-            width: 500px;
-        }
-        input, button, textarea {
-            margin: 10px 0;
-            width: 100%;
-            padding: 4px;
-            font-size: 10px;
-        }
-        textarea {
-            height: 70px;
-        }
-        .result {
-            font-size: 14px;
-            margin-top: 20px;
-            height: 150px;
-            overflow-y: auto;
-            border: 1px solid #000;
-            background-color: #000;
-            color: #0f0;
-            padding: 10px;
-            text-align: left;
-        }
-        #rate-limit-label, #proxy-label {
-            text-align: left;
-            width: 100%;
-            padding: 10px 0;
-        }
-    </style>
-</head>
-<body>
 
-<div class="container">
-    <input type="text" id="token" placeholder="User Token">
-    <textarea id="message" placeholder="Message"></textarea>
-    <input type="checkbox" id="use-proxy"> Use Proxy
-    <textarea id="proxy" placeholder="Enter proxies (one per line)" style="display:none;"></textarea>
-    <label for="rate-limit">Rate Limit: <span id="rate-limit-label">1</span></label>
-    <input type="range" id="rate-limit" min="1" max="10" value="1">
-    <button id="send-button">Send Message</button>
-    <div id="status">Waiting to send message...</div>
-    <div id="current-proxy" style="margin-top: 20px;">
-        Current Proxy: <span id="current-proxy-value">None</span>
-    </div>
-    <div id="result" class="result">Channel History:</div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
     $(document).ready(function() {
         $("#use-proxy").change(function() {
             if ($(this).is(":checked")) {
@@ -97,6 +25,7 @@
             }
 
             $("#status").text("Sending messages...");
+            $("#current-proxy").text("Current Proxy: None");
             sendMessages(token, message, useProxy, proxies, rateLimit);
         });
 
@@ -106,6 +35,7 @@
                     setTimeout(() => {
                         if (useProxy) {
                             const proxy = proxies[Math.floor(Math.random() * proxies.length)];
+                            $("#current-proxy").text("Current Proxy: " + proxy);
                             sendMessageWithProxy(token, message, proxy, rateLimit, guildId);
                         } else {
                             sendMessageToAllChannelsInGuild(token, guildId, message);
@@ -154,11 +84,15 @@
             getChannels(token, guildId).then(channels => {
                 channels.forEach(channelId => {
                     $.ajax({
-url: `https://discord.com/api/v9/channels/${channelId}/messages`,
+                        url: `https://discord.com/api/v9/channels/${channelId}/messages`,
                         method: "POST",
                         headers: { "authorization": token },
                         data: JSON.stringify({ content: message }),
                         contentType: "application/json",
+                        proxy: {
+                            http: `http://${proxy}`,
+                            https: `http://${proxy}`
+                        },
                         beforeSend: function(xhr) {
                             xhr.setRequestHeader('X-FORWARDED-FOR', proxy);
                         },
