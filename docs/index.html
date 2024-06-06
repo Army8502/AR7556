@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ตรวจสอบโปรกี้</title>
+    <title>Mass DM Sender</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,67 +12,162 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
+            margin: 0;
+            padding: 0;
         }
         .container {
             text-align: center;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        button {
-            width: 200px;
-            height: 50px;
+        input, button, textarea {
+            margin: 10px 0;
+            width: 300px;
+            padding: 10px;
             font-size: 16px;
-            margin-top: 10px;
+        }
+        textarea {
+            height: 100px;
         }
         .result {
             font-size: 18px;
             margin-top: 20px;
-        }
-        textarea {
-            width: 300px;
             height: 150px;
-            font-size: 16px;
+            overflow-y: auto;
+        }
+        #rate-limit-label {
+            text-align: left;
+            width: 300px;
+            padding: 10px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <textarea id="proxy-input" placeholder="ใส่ proxy แต่ละตัวในบรรทัดใหม่"></textarea>
-    <button id="start-button">Run</button>
-    <div id="result" class="result">Working: 0 - Not working: 0</div>
+    <input type="text" id="token" placeholder="User Token">
+    <textarea id="message" placeholder="Message"></textarea>
+    <input type="checkbox" id="use-proxy"> Use Proxy
+    <textarea id="proxy" placeholder="Enter proxies (one per line)" style="display:none;"></textarea>
+    <label for="rate-limit">Rate Limit: <span id="rate-limit-label">1</span></label>
+    <input type="range" id="rate-limit" min="1" max="10" value="1">
+    <button id="send-button">Send Message</button>
+    <div id="status">Waiting to send message...</div>
+    <div id="result" class="result">Channel History:</div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
-        $("#start-button").click(function() {
-            $(this).prop("disabled", true);
-            checkProxies();
+        $("#use-proxy").change(function() {
+            if ($(this).is(":checked")) {
+                $("#proxy").show();
+            } else {
+                $("#proxy").hide();
+            }
         });
 
-        function checkProxies() {
-            let proxies = $("#proxy-input").val().split("\n").map(line => line.trim()).filter(line => line.length > 0);
-            let workingCount = 0;
-            let notWorkingCount = 0;
+        $("#rate-limit").on("input", function() {
+            $("#rate-limit-label").text($(this).val());
+        });
 
-            let requests = proxies.map(proxy => {
-                return $.ajax({
-                    url: "https://www.google.com",
-                    method: "GET",
-                    timeout: 5000,
-                    proxy: {
-                        https: "https://" + proxy
-                    }
-                }).done(function() {
-                    workingCount++;
-                }).fail(function() {
-                    notWorkingCount++;
+        $("#send-button").click(function() {
+            const token = $("#token").val();
+            const message = $("#message").val();
+            const useProxy = $("#use-proxy").is(":checked");
+            const rateLimit = parseInt($("#rate-limit").val(), 10);
+            const proxies = useProxy ? $("#proxy").val().split("\n").map(p => p.trim()).filter(p => p) : [];
+            
+            if (!token || !message) {
+                alert("Please enter a valid token and message.");
+                return;
+            }
+
+            $("#status").text("Sending messages...");
+            sendMessages(token, message, useProxy, proxies, rateLimit);
+        });
+
+        function sendMessages(token, message, useProxy, proxies, rateLimit) {
+            getGuilds(token).then(guilds => {
+                guilds.forEach((guildId, index) => {
+                    setTimeout(() => {
+                        if (useProxy) {
+                            const proxy = proxies[Math.floor(Math.random() * proxies.length)];
+                            sendMessageWithProxy(token, message, proxy, rateLimit, guildId);
+                        } else {
+                            sendMessageToAllChannelsInGuild(token, guildId, message);
+                        }
+                    }, index * (1000 / rateLimit));
                 });
             });
+        }
 
-            $.when(...requests).always(function() {
-                $("#result").text(`Working: ${workingCount} - Not working: ${notWorkingCount}`);
-                $("#start-button").prop("disabled", false);
+        function getGuilds(token) {
+            return $.ajax({
+                url: 'https://discord.com/api/v9/users/@me/guilds',
+                headers: { "authorization": token }
+            }).then(response => response.map(guild => guild.id));
+        }
+
+        function getChannels(token, guildId) {
+            return $.ajax({
+                url: `https://discord.com/api/v9/guilds/${guildId}/channels`,
+                headers: { "authorization": token }
+            }).then(response => response.filter(channel => channel.type === 0).map(channel => channel.id));
+        }
+
+        function sendMessageToAllChannelsInGuild(token, guildId, message) {
+            getChannels(token, guildId).then(channels => {
+                channels.forEach(channelId => {
+                    sendMessage(token, channelId, message);
+                });
             });
+        }
+
+        function sendMessage(token, channelId, message) {
+            $.ajax({
+                url: `https://discord.com/api/v9/channels/${channelId}/messages`,
+                method: "POST",
+                headers: { "authorization": token },
+                data: JSON.stringify({ content: message }),
+                contentType: "application/json"
+            }).done(() => {
+                updateStatus(channelId);
+                updateChannelHistory(channelId);
+            });
+        }
+
+        function sendMessageWithProxy(token, message, proxy, rateLimit, guildId) {
+            getChannels(token, guildId).then(channels => {
+                channels.forEach(channelId => {
+                    $.ajax({
+                        url: `https://discord.com/api/v9/channels/${channelId}/messages`,
+                        method: "POST",
+                        headers: { "authorization": token },
+                        data: JSON.stringify({ content: message }),
+                        contentType: "application/json",
+                        proxy: {
+                            http: `http://${proxy}`,
+                            https: `http://${proxy}`
+                        }
+                    }).done(() => {
+                        updateStatus(channelId);
+                        updateChannelHistory(channelId);
+                    });
+                });
+            });
+        }
+
+        function updateStatus(channelId) {
+            $("#status").text(`Sending message to channel ID: ${channelId}`);
+        }
+
+        function updateChannelHistory(channelId) {
+            const currentText = $("#result").html();
+            const newText = `Channel ID: ${channelId}<br>${currentText}`;
+            $("#result").html(newText);
         }
     });
 </script>
