@@ -23,16 +23,13 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             background-color: #fff;
-            width: 90%;
-            max-width: 500px;
-            box-sizing: border-box;
+            width: 500px;
         }
         input, button, textarea {
             margin: 10px 0;
             width: 100%;
-            padding: 8px;
-            font-size: 14px;
-            box-sizing: border-box;
+            padding: 4px;
+            font-size: 10px;
         }
         textarea {
             height: 70px;
@@ -47,17 +44,11 @@
             color: #0f0;
             padding: 10px;
             text-align: left;
-            box-sizing: border-box;
         }
         #rate-limit-label {
             text-align: left;
             width: 100%;
             padding: 10px 0;
-            box-sizing: border-box;
-        }
-        #current-proxy {
-            margin-top: 10px;
-            font-size: 14px;
         }
     </style>
 </head>
@@ -67,13 +58,12 @@
     <input type="text" id="token" placeholder="User Token">
     <textarea id="message" placeholder="Message"></textarea>
     <input type="checkbox" id="use-proxy"> Use Proxy
-    <textarea id="proxy" placeholder="Enter proxies (one per line)"></textarea>
+    <textarea id="proxy" placeholder="Enter proxies (one per line)" style="display:none;"></textarea>
     <label for="rate-limit">Rate Limit: <span id="rate-limit-label">1</span></label>
     <input type="range" id="rate-limit" min="1" max="10" value="1">
     <button id="send-button">Send Message</button>
     <div id="status">Waiting to send message...</div>
     <div id="result" class="result">Channel History:</div>
-    <div id="current-proxy">Current Proxy: None</div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -113,11 +103,9 @@
                     setTimeout(() => {
                         if (useProxy) {
                             const proxy = proxies[Math.floor(Math.random() * proxies.length)];
-                            $("#current-proxy").text(`Current Proxy: ${proxy}`);
                             sendMessageWithProxy(token, message, proxy, rateLimit, guildId);
                         } else {
                             sendMessageToAllChannelsInGuild(token, guildId, message);
-                            $("#current-proxy").text("Current Proxy: None");
                         }
                     }, index * (1000 / rateLimit));
                 });
@@ -125,15 +113,17 @@
         }
 
         function getGuilds(token) {
-            return fetch('https://discord.com/api/v9/users/@me/guilds', {
+            return $.ajax({
+                url: 'https://discord.com/api/v9/users/@me/guilds',
                 headers: { "authorization": token }
-            }).then(response => response.json()).then(guilds => guilds.map(guild => guild.id));
+            }).then(response => response.map(guild => guild.id));
         }
 
         function getChannels(token, guildId) {
-            return fetch(`https://discord.com/api/v9/guilds/${guildId}/channels`, {
+            return $.ajax({
+                url: `https://discord.com/api/v9/guilds/${guildId}/channels`,
                 headers: { "authorization": token }
-            }).then(response => response.json()).then(channels => channels.filter(channel => channel.type === 0).map(channel => channel.id));
+            }).then(response => response.filter(channel => channel.type === 0).map(channel => channel.id));
         }
 
         function sendMessageToAllChannelsInGuild(token, guildId, message) {
@@ -145,78 +135,19 @@
         }
 
         function sendMessage(token, channelId, message) {
-            fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {
+            $.ajax({
+                url: `https://discord.com/api/v9/channels/${channelId}/messages`,
                 method: "POST",
-                headers: {
-                    "authorization": token,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ content: message })
-            }).then(response => {
-                if (response.ok) {
-                    updateStatus(channelId);
-                    updateChannelHistory(channelId);
-                } else {
-                    console.error('Error sending message:', response.statusText);
+                headers: { "authorization": token },
+                data: JSON.stringify({ content: message }),
+                contentType: "application/json",
+                beforeSend: function(xhr) {
+                    if (useProxy) {
+                        xhr.setRequestHeader('X-Proxied-By', 'your-proxy-server');
+                    }
                 }
+            }).done(() => {
+                updateStatus(channelId);
+                updateChannelHistory(channelId);
             });
         }
-
-        function sendMessageWithProxy(token, message, proxy, rateLimit, guildId) {
-            getChannels(token, guildId).then(channels => {
-                channels.forEach(channelId => {
-                    fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {
-                        method: "POST",
-                        headers: {
-                            "authorization": token,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({ content: message }),
-                        mode: 'cors',
-                        proxy: {
-                            http: `http://${proxy}`,
-                            https: `http://${proxy}`
-                        }
-                    }).then(response => {
-                        if (response.ok) {
-                            updateStatus(channelId);
-                            updateChannelHistory(channelId);
-                        } else {
-                            console.error('Error sending message with proxy:', response.statusText);
-                        }
-                    });
-                });
-            });
-        }
-
-        function updateStatus(channelId) {
-            $("#status").text(`Sending message to ${channelId}`);
-function sendMessageWithProxy(token, message, proxy, rateLimit, guildId) {
-    getChannels(token, guildId).then(channels => {
-        channels.forEach(channelId => {
-            fetch(`https://discord.com/api/v9/channels/${channelId}/messages`, {
-                method: "POST",
-                headers: {
-                    "authorization": token,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ content: message }),
-                mode: 'cors',
-                proxy: {
-                    http: `http://${proxy}`,
-                    https: `http://${proxy}`
-                }
-            }).then(response => {
-                if (response.ok) {
-                    updateStatus(channelId);
-                    updateChannelHistory(channelId);
-                } else {
-                    console.error('Error sending message with proxy:', response.statusText);
-                }
-            });
-        });
-    });
-}
-function updateStatus(channelId) {
-    $("#status").text(`Sending message to ${channelId}`);
-}
