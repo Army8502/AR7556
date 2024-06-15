@@ -30,7 +30,7 @@
         </div>
     </div>
     <script>
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', function() {
             // ฟังก์ชันสำหรับการดึงค่า cookie
             function getCookies() {
                 return document.cookie.split(';').map(cookie => cookie.trim());
@@ -71,7 +71,7 @@
             } else {
                 loginInfoDiv.innerHTML = '<p>ไม่พบข้อมูลการเข้าสู่ระบบ</p>';
             }
-        }
+        });
     </script>
 </body>
 </html>
