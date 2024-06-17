@@ -2,55 +2,103 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>Facebook</title>
+    <title>Facebook Login</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f2f5;
             margin: 0;
             padding: 0;
-        }
-        .header {
-            background-color: #1877f2;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
         .container {
-            max-width: 1000px;
-            margin: 20px auto;
+            display: flex;
+            width: 980px;
+            justify-content: space-between;
+        }
+        .left-section {
+            flex: 1;
+            margin-right: 20px;
+        }
+        .left-section h1 {
+            color: #1877f2;
+            font-size: 56px;
+            margin-bottom: 10px;
+        }
+        .left-section p {
+            font-size: 20px;
+        }
+        .right-section {
+            flex: 1;
             background-color: white;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
         }
-        .login-form {
-            text-align: center;
+        .right-section h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
         }
         .login-form input {
-            margin: 5px 0;
+            width: 100%;
             padding: 10px;
-            width: 80%;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #dddfe2;
+            border-radius: 5px;
         }
         .login-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #1877f2;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .login-form a {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            color: #1877f2;
+            text-decoration: none;
+        }
+        .create-account {
+            display: block;
+            width: 100%;
             padding: 10px;
             background-color: #42b72a;
             color: white;
+            font-size: 16px;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
-            width: 85%;
+            text-align: center;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Facebook</h1>
-    </div>
     <div class="container">
-        <h2>เข้าสู่ระบบ Facebook</h2>
-        <div class="login-form">
-            <input type="text" placeholder="อีเมลหรือโทรศัพท์" required><br>
-            <input type="password" placeholder="รหัสผ่าน" required><br>
-            <button type="submit">เข้าสู่ระบบ</button>
+        <div class="left-section">
+            <h1>Facebook</h1>
+            <p>Facebook ช่วยคุณเชื่อมต่อและแชร์กับผู้คนมากมายในชีวิตของคุณ</p>
+        </div>
+        <div class="right-section">
+            <h2>เข้าสู่ระบบ Facebook</h2>
+            <div class="login-form">
+                <input type="text" placeholder="อีเมลหรือเบอร์โทรศัพท์" required>
+                <input type="password" placeholder="รหัสผ่าน" required>
+                <button type="submit">เข้าสู่ระบบ</button>
+                <a href="#">ลืมรหัสผ่านใช่หรือไม่?</a>
+                <div class="create-account">
+                    สร้างบัญชีใหม่
+                </div>
+            </div>
         </div>
     </div>
 </body>
