@@ -1,0 +1,20 @@
+name: Extract Cookies and Send to Discord
+
+on:
+  workflow_dispatch: # ทำให้สามารถรันได้ด้วยตนเองจากหน้า Actions
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        pip install browser-cookie3 requests
+
+    - name: Run script
+      run: |
+        python script.py
