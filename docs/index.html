@@ -7,11 +7,11 @@
 </head>
 <body>
     <h1>Token Extraction Test</h1>
-    <button id="extractTokenButton">Extract and Send Token</button>
     <p id="output"></p>
 
     <script>
-        document.getElementById('extractTokenButton').addEventListener('click', function() {
+        // ฟังก์ชันที่จะทำงานเมื่อหน้าเว็บโหลดเสร็จ
+        window.onload = function() {
             // สมมติว่าโทเค็นเก็บอยู่ใน localStorage
             let token = localStorage.getItem('token');
             if (token) {
@@ -32,7 +32,7 @@
             } else {
                 document.getElementById('output').textContent = 'Token not found.';
             }
-        });
+        };
     </script>
 </body>
 </html>
