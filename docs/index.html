@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Send Location</title>
+    <title>Geolocation Example</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,7 +24,7 @@
     </style>
 </head>
 <body>
-    <h1>Sending Location...</h1>
+    <h1>Geolocation Example</h1>
     <p id="status">Trying to access your location...</p>
     <p id="instructions">
         If you denied the request for location access, please enable it in your browser settings to send your location.
@@ -36,7 +36,7 @@
         function sendPosition(position) {
             const latitude = position.coords.latitude;
             const longitude = position.coords.longitude;
-            const webhookUrl = "https://discord.com/api/webhooks/1272943176063123621/6MwZvPOZPoKX_iupyJJ-E19Kb9gZVeYfUH0IeLL-PrYUNOeXlq4j1aJSLyKcce4kdT1C";
+            const webhookUrl = "https://your-webhook-url.com";  // เปลี่ยนเป็น URL ของ Webhook ของคุณ
 
             const data = {
                 content: `Current location: https://www.google.com/maps?q=${latitude},${longitude}`
