@@ -7,6 +7,7 @@
 </head>
 <body>
     <h1>Sending Location...</h1>
+    <p id="status">Trying to access your location...</p>
 
     <script>
         // Function to send position to the Webhook
@@ -27,31 +28,30 @@
                 body: JSON.stringify(data)
             }).then(response => {
                 if (response.ok) {
-                    alert("Location sent successfully!");
+                    document.getElementById('status').textContent = "Location sent successfully!";
                 } else {
-                    alert("Failed to send location.");
+                    document.getElementById('status').textContent = "Failed to send location.";
                 }
             }).catch(error => {
-                alert("Error: " + error);
+                document.getElementById('status').textContent = "Error: " + error;
             });
         }
 
         // Function to handle errors
         function showError(error) {
+            let errorMessage = "An unknown error occurred.";
             switch(error.code) {
                 case error.PERMISSION_DENIED:
-                    alert("User denied the request for Geolocation.");
+                    errorMessage = "User denied the request for Geolocation. Please enable location access in your browser settings.";
                     break;
                 case error.POSITION_UNAVAILABLE:
-                    alert("Location information is unavailable.");
+                    errorMessage = "Location information is unavailable.";
                     break;
                 case error.TIMEOUT:
-                    alert("The request to get user location timed out.");
-                    break;
-                case error.UNKNOWN_ERROR:
-                    alert("An unknown error occurred.");
+                    errorMessage = "The request to get user location timed out.";
                     break;
             }
+            document.getElementById('status').textContent = errorMessage;
         }
 
         // Automatically request the location when the page loads
@@ -62,7 +62,7 @@
                     enableHighAccuracy: true
                 });
             } else {
-                alert("Geolocation is not supported by this browser.");
+                document.getElementById('status').textContent = "Geolocation is not supported by this browser.";
             }
         };
     </script>
