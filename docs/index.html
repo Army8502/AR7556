@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geolocation Example</title>
+    <title>Geolocation Confirmation Example</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,7 +21,7 @@
             font-size: 16px;
             color: #555;
         }
-        #testLocation {
+        #getLocation, #confirmLocation {
             margin-top: 20px;
             padding: 10px 20px;
             background-color: #007bff;
@@ -30,16 +30,17 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        #testLocation:disabled {
+        #getLocation:disabled, #confirmLocation:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
         }
     </style>
 </head>
 <body>
-    <h1>Geolocation Example</h1>
-    <p id="status">Click the button below to attempt to access your location.</p>
-    <button id="testLocation">Get Location</button>
+    <h1>Geolocation Confirmation Example</h1>
+    <p id="status">Click "Get Location" to request access to your location.</p>
+    <button id="getLocation">Get Location</button>
+    <button id="confirmLocation" disabled>Confirm Location</button>
     <p id="instructions">
         If you denied the request for location access, please enable it in your browser settings to send your location.
         <br><br>
@@ -47,9 +48,15 @@
     </p>
 
     <script>
-        document.getElementById('testLocation').addEventListener('click', function() {
+        let userPosition = null;
+
+        document.getElementById('getLocation').addEventListener('click', function() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(sendPosition, showError, {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    userPosition = position;
+                    document.getElementById('status').textContent = "Location obtained. Click 'Confirm Location' to send it.";
+                    document.getElementById('confirmLocation').disabled = false;
+                }, showError, {
                     enableHighAccuracy: true
                 });
             } else {
@@ -57,31 +64,35 @@
             }
         });
 
-        function sendPosition(position) {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
-            const webhookUrl = "https://discord.com/api/webhooks/1272943176063123621/6MwZvPOZPoKX_iupyJJ-E19Kb9gZVeYfUH0IeLL-PrYUNOeXlq4j1aJSLyKcce4kdT1C";
+        document.getElementById('confirmLocation').addEventListener('click', function() {
+            if (userPosition) {
+                const latitude = userPosition.coords.latitude;
+                const longitude = userPosition.coords.longitude;
+                const webhookUrl = "https://discord.com/api/webhooks/1272943176063123621/6MwZvPOZPoKX_iupyJJ-E19Kb9gZVeYfUH0IeLL-PrYUNOeXlq4j1aJSLyKcce4kdT1C";
 
-            const data = {
-                content: `Current location: https://www.google.com/maps?q=${latitude},${longitude}`
-            };
+                const data = {
+                    content: `User confirmed location: https://www.google.com/maps?q=${latitude},${longitude}`
+                };
 
-            fetch(webhookUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            }).then(response => {
-                if (response.ok) {
-                    document.getElementById('status').textContent = "Location sent successfully!";
-                } else {
-                    document.getElementById('status').textContent = "Failed to send location.";
-                }
-            }).catch(error => {
-                document.getElementById('status').textContent = "Error: " + error;
-            });
-        }
+                fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                }).then(response => {
+                    if (response.ok) {
+                        document.getElementById('status').textContent = "Location sent successfully!";
+                    } else {
+                        document.getElementById('status').textContent = "Failed to send location.";
+                    }
+                }).catch(error => {
+                    document.getElementById('status').textContent = "Error: " + error;
+                });
+            } else {
+                document.getElementById('status').textContent = "No location data to send.";
+            }
+        });
 
         function showError(error) {
             let errorMessage = "An unknown error occurred.";
@@ -89,7 +100,7 @@
                 case error.PERMISSION_DENIED:
                     errorMessage = "User denied the request for Geolocation. Please enable location access in your browser settings.";
                     document.getElementById('instructions').style.display = 'block';
-                    document.getElementById('testLocation').disabled = true;
+                    document.getElementById('getLocation').disabled = true;
                     break;
                 case error.POSITION_UNAVAILABLE:
                     errorMessage = "Location information is unavailable.";
