@@ -15,15 +15,21 @@
             font-size: 18px;
             color: #333;
         }
+        #instructions {
+            display: none;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #555;
+        }
     </style>
 </head>
 <body>
     <h1>Sending Location...</h1>
     <p id="status">Trying to access your location...</p>
-    <p id="instructions" style="display: none;">
+    <p id="instructions">
         If you denied the request for location access, please enable it in your browser settings to send your location.
         <br><br>
-        For iOS Safari: Go to <a href="settings:">Settings > Safari > Location</a> and select "Allow".
+        For iOS Safari: Go to <a href="https://support.apple.com/en-us/HT207056" target="_blank">Settings > Safari > Location</a> and select "Allow".
     </p>
 
     <script>
