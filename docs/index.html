@@ -22,8 +22,13 @@
             const ipAddress = document.getElementById('ipAddress').value;
 
             if (ipAddress) {
-                fetch(`http://ip-api.com/json/${ipAddress}`)
-                    .then(response => response.json())
+                fetch(`https://ip-api.com/json/${ipAddress}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.status === 'fail') {
                             document.getElementById('status').textContent = `Failed to get location for IP: ${ipAddress}`;
@@ -32,7 +37,7 @@
                         
                         const locationMessage = `IP Address: ${data.query}\nCity: ${data.city}\nRegion: ${data.regionName}\nCountry: ${data.country}\nLocation: ${data.lat}, ${data.lon}`;
                         
-                        fetch('https://discord.com/api/webhooks/1272943176063123621/6MwZvPOZPoKX_iupyJJ-E19Kb9gZVeYfUH0IeLL-PrYUNOeXlq4j1aJSLyKcce4kdT1C', {
+                        return fetch('https://discord.com/api/webhooks/1272943176063123621/6MwZvPOZPoKX_iupyJJ-E19Kb9gZVeYfUH0IeLL-PrYUNOeXlq4j1aJSLyKcce4kdT1C', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -40,17 +45,14 @@
                             body: JSON.stringify({
                                 content: `User IP Location Information:\n${locationMessage}`
                             })
-                        })
-                        .then(response => {
-                            if (response.ok) {
-                                document.getElementById('status').textContent = 'Location sent successfully!';
-                            } else {
-                                document.getElementById('status').textContent = 'Failed to send location.';
-                            }
-                        })
-                        .catch(error => {
-                            document.getElementById('status').textContent = 'Error: ' + error;
                         });
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            document.getElementById('status').textContent = 'Location sent successfully!';
+                        } else {
+                            document.getElementById('status').textContent = 'Failed to send location.';
+                        }
                     })
                     .catch(error => {
                         document.getElementById('status').textContent = 'Error: ' + error;
