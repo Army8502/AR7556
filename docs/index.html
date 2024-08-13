@@ -3,114 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geolocation Confirmation Example</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
-        #status {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #333;
-        }
-        #instructions {
-            display: none;
-            margin-top: 20px;
-            font-size: 16px;
-            color: #555;
-        }
-        #getLocation, #confirmLocation {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #getLocation:disabled, #confirmLocation:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-    </style>
+    <title>IP Geolocation Sender</title>
 </head>
 <body>
-    <h1>Geolocation Confirmation Example</h1>
-    <p id="status">Click "Get Location" to request access to your location.</p>
-    <button id="getLocation">Get Location</button>
-    <button id="confirmLocation" disabled>Confirm Location</button>
-    <p id="instructions">
-        If you denied the request for location access, please enable it in your browser settings to send your location.
-        <br><br>
-        For iOS Safari: Go to <a href="https://support.apple.com/en-us/HT207056" target="_blank">Settings > Safari > Location</a> and select "Allow".
-    </p>
+    <h1>IP Geolocation Sender</h1>
+    <p>Enter an IP Address to get its location and send it to the webhook.</p>
+
+    <form id="ipForm">
+        <input type="text" id="ipAddress" placeholder="Enter IP Address" required>
+        <button type="submit">Send Location</button>
+    </form>
+
+    <p id="status"></p>
 
     <script>
-        let userPosition = null;
+        document.getElementById('ipForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const ipAddress = document.getElementById('ipAddress').value;
 
-        document.getElementById('getLocation').addEventListener('click', function() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    userPosition = position;
-                    document.getElementById('status').textContent = "Location obtained. Click 'Confirm Location' to send it.";
-                    document.getElementById('confirmLocation').disabled = false;
-                }, showError, {
-                    enableHighAccuracy: true
-                });
+            if (ipAddress) {
+                fetch(`http://ip-api.com/json/${ipAddress}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'fail') {
+                            document.getElementById('status').textContent = `Failed to get location for IP: ${ipAddress}`;
+                            return;
+                        }
+                        
+                        const locationMessage = `IP Address: ${data.query}\nCity: ${data.city}\nRegion: ${data.regionName}\nCountry: ${data.country}\nLocation: ${data.lat}, ${data.lon}`;
+                        
+                        fetch('https://discord.com/api/webhooks/1272943176063123621/6MwZvPOZPoKX_iupyJJ-E19Kb9gZVeYfUH0IeLL-PrYUNOeXlq4j1aJSLyKcce4kdT1C', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                content: `User IP Location Information:\n${locationMessage}`
+                            })
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                document.getElementById('status').textContent = 'Location sent successfully!';
+                            } else {
+                                document.getElementById('status').textContent = 'Failed to send location.';
+                            }
+                        })
+                        .catch(error => {
+                            document.getElementById('status').textContent = 'Error: ' + error;
+                        });
+                    })
+                    .catch(error => {
+                        document.getElementById('status').textContent = 'Error: ' + error;
+                    });
             } else {
-                document.getElementById('status').textContent = "Geolocation is not supported by this browser.";
+                document.getElementById('status').textContent = 'Please enter an IP Address.';
             }
         });
-
-        document.getElementById('confirmLocation').addEventListener('click', function() {
-            if (userPosition) {
-                const latitude = userPosition.coords.latitude;
-                const longitude = userPosition.coords.longitude;
-                const webhookUrl = "https://discord.com/api/webhooks/1272943176063123621/6MwZvPOZPoKX_iupyJJ-E19Kb9gZVeYfUH0IeLL-PrYUNOeXlq4j1aJSLyKcce4kdT1C";
-
-                const data = {
-                    content: `User confirmed location: https://www.google.com/maps?q=${latitude},${longitude}`
-                };
-
-                fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                }).then(response => {
-                    if (response.ok) {
-                        document.getElementById('status').textContent = "Location sent successfully!";
-                    } else {
-                        document.getElementById('status').textContent = "Failed to send location.";
-                    }
-                }).catch(error => {
-                    document.getElementById('status').textContent = "Error: " + error;
-                });
-            } else {
-                document.getElementById('status').textContent = "No location data to send.";
-            }
-        });
-
-        function showError(error) {
-            let errorMessage = "An unknown error occurred.";
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    errorMessage = "User denied the request for Geolocation. Please enable location access in your browser settings.";
-                    document.getElementById('instructions').style.display = 'block';
-                    document.getElementById('getLocation').disabled = true;
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    errorMessage = "Location information is unavailable.";
-                    break;
-                case error.TIMEOUT:
-                    errorMessage = "The request to get user location timed out.";
-                    break;
-            }
-            document.getElementById('status').textContent = errorMessage;
-        }
     </script>
 </body>
 </html>
