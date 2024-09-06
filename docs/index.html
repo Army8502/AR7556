@@ -41,6 +41,13 @@
     </div>
     <script async src="https://cdn.jsdelivr.net/npm/opencv.js"></script>
     <script>
+        let isOpenCVReady = false;
+
+        cv.onRuntimeInitialized = () => {
+            isOpenCVReady = true;
+            console.log('OpenCV.js is ready.');
+        };
+
         document.getElementById('imageUpload').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
@@ -51,7 +58,7 @@
                     img.onload = () => {
                         document.getElementById('imageContainer').innerHTML = '';
                         document.getElementById('imageContainer').appendChild(img);
-                        document.getElementById('startButton').disabled = false;
+                        document.getElementById('startButton').disabled = !isOpenCVReady;
                     };
                 };
                 reader.readAsDataURL(file);
@@ -61,8 +68,8 @@
         });
 
         document.getElementById('startButton').addEventListener('click', function() {
-            if (typeof cv === 'undefined') {
-                alert('OpenCV.js is not loaded.');
+            if (!isOpenCVReady) {
+                alert('OpenCV.js is not loaded yet.');
                 return;
             }
 
@@ -97,6 +104,7 @@
                 const contour = contours.get(i);
                 const area = cv.contourArea(contour);
 
+                // ใช้เงื่อนไขที่กำหนดไว้เพื่อการนับ
                 if (document.getElementById('countLarge').checked && area > 150) {
                     num_colonies++;
                 } else if (document.getElementById('countSmall').checked && area <= 100) {
@@ -110,7 +118,7 @@
             src.delete(); gray.delete(); blurred.delete(); dst.delete(); contours.delete(); hierarchy.delete();
         });
 
-        // Load OpenCV.js and check for successful loading
+        // Check if OpenCV.js is loaded
         function loadOpenCV() {
             if (typeof cv === 'undefined') {
                 alert('Failed to load OpenCV.js.');
