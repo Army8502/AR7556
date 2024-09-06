@@ -41,13 +41,6 @@
     </div>
     <script async src="https://cdn.jsdelivr.net/npm/opencv.js"></script>
     <script>
-        // Wait for OpenCV.js to load
-        let isOpenCVReady = false;
-        cv.onRuntimeInitialized = () => {
-            isOpenCVReady = true;
-            console.log('OpenCV.js is ready.');
-        };
-
         document.getElementById('imageUpload').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
@@ -58,25 +51,27 @@
                     img.onload = () => {
                         document.getElementById('imageContainer').innerHTML = '';
                         document.getElementById('imageContainer').appendChild(img);
-                        document.getElementById('startButton').disabled = !isOpenCVReady;
+                        document.getElementById('startButton').disabled = false;
                     };
                 };
                 reader.readAsDataURL(file);
+            } else {
+                alert('Failed to upload image.');
             }
         });
 
         document.getElementById('startButton').addEventListener('click', function() {
-            if (!isOpenCVReady) {
-                alert('OpenCV.js is not loaded yet.');
+            if (typeof cv === 'undefined') {
+                alert('OpenCV.js is not loaded.');
                 return;
             }
 
-            const img = document.querySelector('#imageContainer img');
-            if (!img) {
+            if (!document.querySelector('#imageContainer img')) {
                 alert('Please upload an image first.');
                 return;
             }
 
+            const img = document.querySelector('#imageContainer img');
             const canvas = document.createElement('canvas');
             canvas.width = img.width;
             canvas.height = img.height;
@@ -90,7 +85,7 @@
             const hierarchy = new cv.Mat();
 
             cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-            cv.GaussianBlur(gray, blurred, new cv.Size(15, 15), 0, 0, cv.BORDER_DEFAULT);
+            cv.GaussianBlur(gray, blurred, new cv.Size(15, 15), 0);
             cv.adaptiveThreshold(blurred, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 11, 2);
             cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, cv.Mat.ones(5, 5, cv.CV_8UC1));
             cv.morphologyEx(dst, dst, cv.MORPH_OPEN, cv.Mat.ones(5, 5, cv.CV_8UC1));
@@ -114,6 +109,13 @@
             // Clear memory
             src.delete(); gray.delete(); blurred.delete(); dst.delete(); contours.delete(); hierarchy.delete();
         });
+
+        // Load OpenCV.js and check for successful loading
+        function loadOpenCV() {
+            if (typeof cv === 'undefined') {
+                alert('Failed to load OpenCV.js.');
+            }
+        }
     </script>
 </body>
 </html>
