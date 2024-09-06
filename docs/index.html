@@ -41,25 +41,17 @@
     </div>
     <script async src="https://cdn.jsdelivr.net/npm/opencv.js"></script>
     <script>
-        let isOpenCVReady = false;
-
-        // Ensure OpenCV.js is loaded and ready
-        cv.onRuntimeInitialized = () => {
-            isOpenCVReady = true;
-            console.log('OpenCV.js is ready.');
-        };
-
         document.getElementById('imageUpload').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const img = new Image();
+                    const img = document.createElement('img');
                     img.src = e.target.result;
                     img.onload = () => {
                         document.getElementById('imageContainer').innerHTML = '';
                         document.getElementById('imageContainer').appendChild(img);
-                        document.getElementById('startButton').disabled = !isOpenCVReady;
+                        document.getElementById('startButton').disabled = false;
                     };
                 };
                 reader.readAsDataURL(file);
@@ -69,24 +61,22 @@
         });
 
         document.getElementById('startButton').addEventListener('click', function() {
-            if (!isOpenCVReady) {
-                alert('OpenCV.js is not loaded yet.');
+            if (typeof cv === 'undefined') {
+                alert('OpenCV.js is not loaded.');
                 return;
             }
 
-            const imgElement = document.querySelector('#imageContainer img');
-            if (!imgElement) {
+            if (!document.querySelector('#imageContainer img')) {
                 alert('Please upload an image first.');
                 return;
             }
 
+            const img = document.querySelector('#imageContainer img');
             const canvas = document.createElement('canvas');
-            canvas.width = imgElement.width;
-            canvas.height = imgElement.height;
+            canvas.width = img.width;
+            canvas.height = img.height;
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(imgElement, 0, 0);
-
-            // Load image to OpenCV
+            ctx.drawImage(img, 0, 0);
             const src = cv.imread(canvas);
             const gray = new cv.Mat();
             const blurred = new cv.Mat();
@@ -107,7 +97,6 @@
                 const contour = contours.get(i);
                 const area = cv.contourArea(contour);
 
-                // Use the selected checkboxes to count colonies
                 if (document.getElementById('countLarge').checked && area > 150) {
                     num_colonies++;
                 } else if (document.getElementById('countSmall').checked && area <= 100) {
@@ -120,6 +109,13 @@
             // Clear memory
             src.delete(); gray.delete(); blurred.delete(); dst.delete(); contours.delete(); hierarchy.delete();
         });
+
+        // Load OpenCV.js and check for successful loading
+        function loadOpenCV() {
+            if (typeof cv === 'undefined') {
+                alert('Failed to load OpenCV.js.');
+            }
+        }
     </script>
 </body>
 </html>
