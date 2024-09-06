@@ -1,65 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP Geolocation Sender</title>
+    <title>Colony Counter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        #imageContainer img {
+            max-width: 400px;
+            max-height: 400px;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+        }
+    </style>
 </head>
 <body>
-    <h1>IP Geolocation Sender</h1>
-    <p>Enter an IP Address to get its location and send it to the webhook.</p>
-
-    <form id="ipForm">
-        <input type="text" id="ipAddress" placeholder="Enter IP Address" required>
-        <button type="submit">Send Location</button>
-    </form>
-
-    <p id="status"></p>
-
+    <div class="container">
+        <h1>Colony Counter</h1>
+        <input type="file" id="imageUpload" accept="image/*">
+        <button id="startButton" disabled>Start Counting</button>
+        <p id="result">Number of Colonies: 0</p>
+        <div id="imageContainer"></div>
+        <label><input type="checkbox" id="countLarge"> Count Large Colonies</label><br>
+        <label><input type="checkbox" id="countSmall"> Count Small Colonies</label>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/opencv.js"></script>
     <script>
-        document.getElementById('ipForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const ipAddress = document.getElementById('ipAddress').value;
-
-            if (ipAddress) {
-                fetch(`https://ip-api.com/json/${ipAddress}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.status === 'fail') {
-                            document.getElementById('status').textContent = `Failed to get location for IP: ${ipAddress}`;
-                            return;
-                        }
-                        
-                        const locationMessage = `IP Address: ${data.query}\nCity: ${data.city}\nRegion: ${data.regionName}\nCountry: ${data.country}\nLocation: ${data.lat}, ${data.lon}`;
-                        
-                        return fetch('https://discord.com/api/webhooks/1272943176063123621/6MwZvPOZPoKX_iupyJJ-E19Kb9gZVeYfUH0IeLL-PrYUNOeXlq4j1aJSLyKcce4kdT1C', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                content: `User IP Location Information:\n${locationMessage}`
-                            })
-                        });
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            document.getElementById('status').textContent = 'Location sent successfully!';
-                        } else {
-                            document.getElementById('status').textContent = 'Failed to send location.';
-                        }
-                    })
-                    .catch(error => {
-                        document.getElementById('status').textContent = 'Error: ' + error;
-                    });
-            } else {
-                document.getElementById('status').textContent = 'Please enter an IP Address.';
+        document.getElementById('imageUpload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    document.getElementById('imageContainer').innerHTML = '';
+                    document.getElementById('imageContainer').appendChild(img);
+                    document.getElementById('startButton').disabled = false;
+                };
+                reader.readAsDataURL(file);
             }
+        });
+
+        document.getElementById('startButton').addEventListener('click', function() {
+            // รอให้ OpenCV.js โหลดเสร็จ
+            cv.onRuntimeInitialized = function() {
+                const img = document.querySelector('#imageContainer img');
+                if (!img) {
+                    alert('Please upload an image first.');
+                    return;
+                }
+
+                // สร้าง canvas เพื่อประมวลผลภาพ
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                const src = cv.imread(canvas);
+                const gray = new cv.Mat();
+                const blurred = new cv.Mat();
+                const dst = new cv.Mat();
+                const contours = new cv.MatVector();
+                const hierarchy = new cv.Mat();
+
+                cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+                cv.GaussianBlur(gray, blurred, new cv.Size(15, 15), 0, 0, cv.BORDER_DEFAULT);
+                cv.adaptiveThreshold(blurred, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 11, 2);
+                cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, cv.Mat.ones(5, 5, cv.CV_8UC1));
+                cv.morphologyEx(dst, dst, cv.MORPH_OPEN, cv.Mat.ones(5, 5, cv.CV_8UC1));
+                cv.findContours(dst, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+                let num_colonies = 0;
+
+                for (let i = 0; i < contours.size(); i++) {
+                    const contour = contours.get(i);
+                    const area = cv.contourArea(contour);
+
+                    if (document.getElementById('countLarge').checked && area > 150) {
+                        num_colonies++;
+                    } else if (document.getElementById('countSmall').checked && area <= 100) {
+                        num_colonies++;
+                    }
+                }
+
+                document.getElementById('result').textContent = `Number of Colonies: ${num_colonies}`;
+
+                // ล้างข้อมูล
+                src.delete(); gray.delete(); blurred.delete(); dst.delete(); contours.delete(); hierarchy.delete();
+            };
         });
     </script>
 </body>
