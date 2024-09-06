@@ -54,7 +54,7 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const img = document.createElement('img');
+                    const img = new Image();
                     img.src = e.target.result;
                     img.onload = () => {
                         document.getElementById('imageContainer').innerHTML = '';
@@ -85,6 +85,8 @@
             canvas.height = imgElement.height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(imgElement, 0, 0);
+
+            // Load image to OpenCV
             const src = cv.imread(canvas);
             const gray = new cv.Mat();
             const blurred = new cv.Mat();
@@ -105,7 +107,7 @@
                 const contour = contours.get(i);
                 const area = cv.contourArea(contour);
 
-                // ใช้เงื่อนไขที่กำหนดไว้เพื่อการนับ
+                // Use the selected checkboxes to count colonies
                 if (document.getElementById('countLarge').checked && area > 150) {
                     num_colonies++;
                 } else if (document.getElementById('countSmall').checked && area <= 100) {
