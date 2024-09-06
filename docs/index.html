@@ -39,8 +39,15 @@
         <label><input type="checkbox" id="countLarge"> Count Large Colonies</label><br>
         <label><input type="checkbox" id="countSmall"> Count Small Colonies</label>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/opencv.js"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/opencv.js"></script>
     <script>
+        // Wait for OpenCV.js to load
+        let isOpenCVReady = false;
+        cv.onRuntimeInitialized = () => {
+            isOpenCVReady = true;
+            console.log('OpenCV.js is ready.');
+        };
+
         document.getElementById('imageUpload').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
@@ -48,61 +55,64 @@
                 reader.onload = function(e) {
                     const img = document.createElement('img');
                     img.src = e.target.result;
-                    document.getElementById('imageContainer').innerHTML = '';
-                    document.getElementById('imageContainer').appendChild(img);
-                    document.getElementById('startButton').disabled = false;
+                    img.onload = () => {
+                        document.getElementById('imageContainer').innerHTML = '';
+                        document.getElementById('imageContainer').appendChild(img);
+                        document.getElementById('startButton').disabled = !isOpenCVReady;
+                    };
                 };
                 reader.readAsDataURL(file);
             }
         });
 
         document.getElementById('startButton').addEventListener('click', function() {
-            // รอให้ OpenCV.js โหลดเสร็จ
-            cv.onRuntimeInitialized = function() {
-                const img = document.querySelector('#imageContainer img');
-                if (!img) {
-                    alert('Please upload an image first.');
-                    return;
+            if (!isOpenCVReady) {
+                alert('OpenCV.js is not loaded yet.');
+                return;
+            }
+
+            const img = document.querySelector('#imageContainer img');
+            if (!img) {
+                alert('Please upload an image first.');
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            const src = cv.imread(canvas);
+            const gray = new cv.Mat();
+            const blurred = new cv.Mat();
+            const dst = new cv.Mat();
+            const contours = new cv.MatVector();
+            const hierarchy = new cv.Mat();
+
+            cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+            cv.GaussianBlur(gray, blurred, new cv.Size(15, 15), 0, 0, cv.BORDER_DEFAULT);
+            cv.adaptiveThreshold(blurred, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 11, 2);
+            cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, cv.Mat.ones(5, 5, cv.CV_8UC1));
+            cv.morphologyEx(dst, dst, cv.MORPH_OPEN, cv.Mat.ones(5, 5, cv.CV_8UC1));
+            cv.findContours(dst, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+            let num_colonies = 0;
+
+            for (let i = 0; i < contours.size(); i++) {
+                const contour = contours.get(i);
+                const area = cv.contourArea(contour);
+
+                if (document.getElementById('countLarge').checked && area > 150) {
+                    num_colonies++;
+                } else if (document.getElementById('countSmall').checked && area <= 100) {
+                    num_colonies++;
                 }
+            }
 
-                // สร้าง canvas เพื่อประมวลผลภาพ
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                const src = cv.imread(canvas);
-                const gray = new cv.Mat();
-                const blurred = new cv.Mat();
-                const dst = new cv.Mat();
-                const contours = new cv.MatVector();
-                const hierarchy = new cv.Mat();
+            document.getElementById('result').textContent = `Number of Colonies: ${num_colonies}`;
 
-                cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-                cv.GaussianBlur(gray, blurred, new cv.Size(15, 15), 0, 0, cv.BORDER_DEFAULT);
-                cv.adaptiveThreshold(blurred, dst, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 11, 2);
-                cv.morphologyEx(dst, dst, cv.MORPH_CLOSE, cv.Mat.ones(5, 5, cv.CV_8UC1));
-                cv.morphologyEx(dst, dst, cv.MORPH_OPEN, cv.Mat.ones(5, 5, cv.CV_8UC1));
-                cv.findContours(dst, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
-
-                let num_colonies = 0;
-
-                for (let i = 0; i < contours.size(); i++) {
-                    const contour = contours.get(i);
-                    const area = cv.contourArea(contour);
-
-                    if (document.getElementById('countLarge').checked && area > 150) {
-                        num_colonies++;
-                    } else if (document.getElementById('countSmall').checked && area <= 100) {
-                        num_colonies++;
-                    }
-                }
-
-                document.getElementById('result').textContent = `Number of Colonies: ${num_colonies}`;
-
-                // ล้างข้อมูล
-                src.delete(); gray.delete(); blurred.delete(); dst.delete(); contours.delete(); hierarchy.delete();
-            };
+            // Clear memory
+            src.delete(); gray.delete(); blurred.delete(); dst.delete(); contours.delete(); hierarchy.delete();
         });
     </script>
 </body>
